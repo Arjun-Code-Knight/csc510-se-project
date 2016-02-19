@@ -61,8 +61,7 @@ public class FileUploadClient {
 	public void loadProperties() throws FileNotFoundException, IOException
     {
     	Properties prop = new Properties();
-    	File propFile = new File(this.getClass().getClassLoader().getResource(PROPFILE).getPath());
-    	prop.load(new FileInputStream(propFile));
+    	prop.load(this.getClass().getClassLoader().getResourceAsStream(PROPFILE));
     	IMAGE = (String) prop.get("TESTFILENAME");
     	ENDPOINT = (String) prop.get("ENDPOINT");
     }

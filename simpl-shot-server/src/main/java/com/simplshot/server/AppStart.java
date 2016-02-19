@@ -43,8 +43,7 @@ public class AppStart {
     {
     	try{
 	    	Properties prop = new Properties();
-	    	File propFile = new File(AppStart.class.getClassLoader().getResource(PROPFILE).getFile());
-	    	prop.load(new FileInputStream(propFile));
+	    	prop.load(AppStart.class.getClassLoader().getResourceAsStream(PROPFILE));
 	    	String baseuri = (String) prop.get("BASE_URI");
 	    	BASE_URI = URI.create(baseuri);
 	    	UPLOAD_DIR = (String) prop.get("UPLOAD_DIR");
