@@ -22,19 +22,17 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
  * Exposed to receive multipart file as input
  * 
  */
-@Path("send")
+@Path("uploadService")
 public class FileServer {
 	
-	private static final String DIRECTORY = "E:\\";
-	private StringBuffer strBuffer;
 	private static final String ERROR = "ERROR";
 	private static final String SUCCESS = "SUCCESS";
 	private static final Logger LOGGER = Logger.getLogger(FileServer.class.getName());
-	
+	private StringBuffer strBuffer;
 	
 	public FileServer()
 	{
-		 strBuffer = new StringBuffer(DIRECTORY);
+		 strBuffer = new StringBuffer(AppStart.UPLOAD_DIR);
 	}
 	
 	@POST
@@ -43,7 +41,7 @@ public class FileServer {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader)
 	{
-		File directory = new File(DIRECTORY);
+		File directory = new File(AppStart.UPLOAD_DIR);
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
@@ -57,7 +55,7 @@ public class FileServer {
 
 	private boolean saveFile(InputStream inpStream, String outputFile)
 	{
-		if(inpStream != null && !outputFile.equals(DIRECTORY))
+		if(inpStream != null && !outputFile.equals(AppStart.UPLOAD_DIR))
 		{
 			try {
 				FileOutputStream fileOut = new FileOutputStream(outputFile);
