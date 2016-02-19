@@ -17,6 +17,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class AppStart {
 
 	public static URI BASE_URI;
+	public static String TESSDATA;
 	public static String UPLOAD_DIR;
 	public static final String PROPFILE = "simp-shot.properties";
 	public static final Logger LOGGER = Logger.getLogger(AppStart.class.getName());
@@ -47,6 +48,7 @@ public class AppStart {
 	    	String baseuri = (String) prop.get("BASE_URI");
 	    	BASE_URI = URI.create(baseuri);
 	    	UPLOAD_DIR = (String) prop.get("UPLOAD_DIR");
+	    	TESSDATA = (String) prop.get("TESSDATA");
     	}
     	catch(Exception ex)
     	{

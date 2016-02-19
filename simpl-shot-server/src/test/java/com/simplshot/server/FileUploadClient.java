@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -18,12 +20,14 @@ public class FileUploadClient {
 	
 	private static String IMAGE;
 	private static String ENDPOINT;
+	private static List<String> USERS = new ArrayList<String>(10);
 	private static final String PROPFILE = "simp-shot.properties";
 	private static final Logger LOGGER = Logger.getLogger(FileUploadClient.class.getName());
 	
 	public static void main(String[] args) throws FileNotFoundException, IOException {
 		FileUploadClient uploadClient = new FileUploadClient();
 		uploadClient.loadProperties();
+		uploadClient.initializeUsers();
 		uploadClient.sendFile();
 	}
 
@@ -35,6 +39,7 @@ public class FileUploadClient {
 		MultipartEntityBuilder fileEntityBuilder = MultipartEntityBuilder.create();
 		FileBody fileBody = new FileBody(testFile);
 		fileEntityBuilder.addPart("attachment", fileBody);
+		fileEntityBuilder.addTextBody("USER", USERS.get((int) (Math.random()%10)));
 		postRequest.setEntity(fileEntityBuilder.build());
 		try {
 			HttpResponse response = httpClient.execute(postRequest);
@@ -61,5 +66,18 @@ public class FileUploadClient {
     	IMAGE = (String) prop.get("TESTFILENAME");
     	ENDPOINT = (String) prop.get("ENDPOINT");
     }
+	
+	public void initializeUsers()
+	{
+		USERS.add("USER1");
+		USERS.add("USER2");
+		USERS.add("USER3");
+		USERS.add("USER4");
+		USERS.add("USER5");
+		USERS.add("USER6");
+		USERS.add("USER7");
+		USERS.add("USER8");
+		USERS.add("USER9");
+	}
 }
 

@@ -17,6 +17,8 @@ import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.simplshot.ocr.OcrUtility;
+
 /*
  * 
  * Exposed to receive multipart file as input
@@ -39,12 +41,18 @@ public class FileServer {
 	@Path("file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader)
+	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName)
 	{
+		System.out.println(userName);
 		File directory = new File(AppStart.UPLOAD_DIR);
+		strBuffer.append(userName+"\\");
+		File userDirectory = new File(strBuffer.toString());
+		if(!userDirectory.exists())
+			userDirectory.mkdirs();
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
+			performOcrProcessing(strBuffer.toString());
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -70,6 +78,12 @@ public class FileServer {
 			}
 		}
 		return false;
+	}
+	
+	private boolean performOcrProcessing(String filePath)
+	{
+		OcrUtility.getInstance().processImage(filePath);
+		return true;
 	}
 	
 }
