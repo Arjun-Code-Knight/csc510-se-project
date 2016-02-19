@@ -17,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.simplshot.mongo.MongoUtil;
 import com.simplshot.ocr.OcrUtility;
 
 /*
@@ -52,7 +53,9 @@ public class FileServer {
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
-			performOcrProcessing(strBuffer.toString());
+			performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			/*Upload and get link*/
+			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString());
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{

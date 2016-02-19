@@ -18,6 +18,7 @@ public class FileServerApplication extends Application{
 	        classes.add(MultiPartFeature.class);
 	        classes.add(FileServer.class);
 	        classes.add(MyResource.class);
+	        classes.add(UserService.class);
 	        classes.add(LoggingFilter.class);
 	        return classes;
 		}

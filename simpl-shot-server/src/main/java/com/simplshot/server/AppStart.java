@@ -1,7 +1,5 @@
 package com.simplshot.server;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
@@ -13,6 +11,8 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+
+import com.simplshot.mongo.MongoUtil;
 
 public class AppStart {
 
@@ -30,6 +30,7 @@ public class AppStart {
             resourceConfig.registerInstances(new LoggingFilter(LOGGER, true));
             resourceConfig.register(MultiPartFeature.class);
             resourceConfig.register(MyResource.class);
+            resourceConfig.register(UserService.class);
             final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(BASE_URI, resourceConfig);
             System.in.read();
             server.stop();
@@ -48,6 +49,10 @@ public class AppStart {
 	    	BASE_URI = URI.create(baseuri);
 	    	UPLOAD_DIR = (String) prop.get("UPLOAD_DIR");
 	    	TESSDATA = (String) prop.get("TESSDATA");
+	    	MongoUtil.mongoHost = (String) prop.get("MONGOHOST");
+	    	MongoUtil.mongoPort = (String) prop.get("MONGOPORT");
+	    	MongoUtil.mongoDB = (String) prop.get("MONGODB");
+	    	MongoUtil.mongoCollection = (String) prop.get("MONGOCOLLECTION");
     	}
     	catch(Exception ex)
     	{
