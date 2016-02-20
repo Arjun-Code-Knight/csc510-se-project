@@ -27,7 +27,7 @@ public class AppStart {
             System.out.println("Starting Server");
             loadProperties();
             final ResourceConfig resourceConfig = new ResourceConfig(FileServer.class);
-            resourceConfig.registerInstances(new LoggingFilter(LOGGER, true));
+            resourceConfig.registerInstances(new LoggingFilter(LOGGER, false));
             resourceConfig.register(MultiPartFeature.class);
             resourceConfig.register(MyResource.class);
             resourceConfig.register(UserService.class);

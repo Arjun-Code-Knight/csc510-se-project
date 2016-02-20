@@ -53,9 +53,11 @@ public class FileServer {
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
-			performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			String extracts = performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			if(extracts != null)
+				extracts = stripUnwantedCharacters(extracts);
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString());
+			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString(),extracts);
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -83,10 +85,17 @@ public class FileServer {
 		return false;
 	}
 	
-	private boolean performOcrProcessing(String filePath)
+	private String performOcrProcessing(String filePath)
 	{
-		OcrUtility.getInstance().processImage(filePath);
-		return true;
+		return OcrUtility.getInstance().processImage(filePath);
+	}
+	
+	private String stripUnwantedCharacters(String extracts)
+	{
+		String pattern = "[\\W\\s]";
+		extracts = extracts.replaceAll(pattern, "");
+		LOGGER.info("Fileterd String "+extracts);
+		return extracts;
 	}
 	
 }
