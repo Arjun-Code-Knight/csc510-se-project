@@ -49,6 +49,7 @@ public class AppStart {
 	    	BASE_URI = URI.create(baseuri);
 	    	UPLOAD_DIR = (String) prop.get("UPLOAD_DIR");
 	    	TESSDATA = (String) prop.get("TESSDATA");
+	    	AwsHandler.bucketName = (String) prop.get("BUCKETNAME");
 	    	MongoUtil.mongoHost = (String) prop.get("MONGOHOST");
 	    	MongoUtil.mongoPort = (String) prop.get("MONGOPORT");
 	    	MongoUtil.mongoDB = (String) prop.get("MONGODB");
