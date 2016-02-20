@@ -47,7 +47,7 @@ public class MongoUtil {
 		initilaized = true;
 	}
 	
-	public boolean addLinkToUser(String userId, String link,String ocrWords){
+	public boolean addLinkToUser(String userId, String link, String ocrWords){
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
@@ -55,6 +55,7 @@ public class MongoUtil {
 		insertUser.put("name", userId);
 		insertUser.put("url", link);
 		insertUser.put("tags", ocrWords);
+		LOGGER.info("Adding user to DB "+insertUser.toJson());
 		try{
 			database.getCollection(mongoCollection).insertOne(insertUser);
 			status = true;
