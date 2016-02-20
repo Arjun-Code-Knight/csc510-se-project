@@ -44,6 +44,7 @@ public class FileServer {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName)
 	{
+		System.out.println(userName);
 		File directory = new File(AppStart.UPLOAD_DIR);
 		strBuffer.append(userName+"\\");
 		File userDirectory = new File(strBuffer.toString());
@@ -52,11 +53,17 @@ public class FileServer {
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
-			String extracts = performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
-			if(extracts != null)
-				extracts = stripUnwantedCharacters(extracts);
+			//performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			/*AwsHandler aws = new AwsHandler();
+			String url = new String();
+			try {
+				url = aws.uploadFile(strBuffer.toString(),contentDispositionHeader.getFileName());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString(),extracts);
+			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString());//change the second param to url
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -84,17 +91,10 @@ public class FileServer {
 		return false;
 	}
 	
-	private String performOcrProcessing(String filePath)
+	private boolean performOcrProcessing(String filePath)
 	{
-		return OcrUtility.getInstance().processImage(filePath);
-	}
-	
-	private String stripUnwantedCharacters(String extracts)
-	{
-		String pattern = "[\\W\\s]";
-		extracts = extracts.replaceAll(pattern, "");
-		LOGGER.info("Fileterd String "+extracts);
-		return extracts;
+		OcrUtility.getInstance().processImage(filePath);
+		return true;
 	}
 	
 }
