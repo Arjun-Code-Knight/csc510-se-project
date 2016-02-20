@@ -53,9 +53,17 @@ public class FileServer {
 		strBuffer.append(contentDispositionHeader.getFileName());
 		if(directory.exists() && saveFile(fileInputStream,strBuffer.toString()))
 		{
-			performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			//performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
+			AwsHandler aws = new AwsHandler();
+			String url = new String();
+			try {
+				url = aws.uploadFile(strBuffer.toString(),contentDispositionHeader.getFileName());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString());
+			MongoUtil.getInstance().addLinkToUser(userName,url);
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
