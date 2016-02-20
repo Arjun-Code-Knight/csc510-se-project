@@ -55,8 +55,17 @@ public class FileServer {
 			String extracts = performOcrProcessing(strBuffer.toString());/*Need to remove stopwords*/
 			if(extracts != null)
 				extracts = stripUnwantedCharacters(extracts);
+			AwsHandler awsHandler = new AwsHandler();
+			String awsFileUrl;
+			try {
+				awsFileUrl = awsHandler.uploadFile(strBuffer.toString(), contentDispositionHeader.getFileName());
+			} catch (IOException ex) {
+				LOGGER.severe("Error Saving to aws");
+				ex.printStackTrace();
+				return Response.status(500).entity(ERROR).build();
+			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(userName,strBuffer.toString(),extracts);/*url*/
+			MongoUtil.getInstance().addLinkToUser(userName,awsFileUrl,extracts);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
