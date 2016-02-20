@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.IOUtils;
+import org.bson.types.ObjectId;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -56,16 +57,17 @@ public class FileServer {
 			if(extracts != null)
 				extracts = stripUnwantedCharacters(extracts);
 			AwsHandler awsHandler = new AwsHandler();
+			ObjectId mongoId = new ObjectId();
 			String awsFileUrl;
 			try {
-				awsFileUrl = awsHandler.uploadFile(strBuffer.toString(), contentDispositionHeader.getFileName());
+				awsFileUrl = awsHandler.uploadFile(strBuffer.toString(), userName+mongoId+contentDispositionHeader.getFileName());
 			} catch (IOException ex) {
 				LOGGER.severe("Error Saving to aws");
 				ex.printStackTrace();
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(userName,awsFileUrl,extracts);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,extracts);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
@@ -47,11 +48,12 @@ public class MongoUtil {
 		initilaized = true;
 	}
 	
-	public boolean addLinkToUser(String userId, String link, String ocrWords){
+	public boolean addLinkToUser(ObjectId _id, String userId, String link, String ocrWords){
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		Document insertUser = new Document();
+		insertUser.put("_id", _id);
 		insertUser.put("name", userId);
 		insertUser.put("url", link);
 		insertUser.put("tags", ocrWords);
@@ -186,9 +188,12 @@ public class MongoUtil {
 		MongoUtil.getInstance().dropDatabase();
 		//MongoUtil.getInstance().createUser("Testuser");
 		MongoUtil.getInstance().checkIfUserExists("Testuser");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:1","tag1");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:2","tag2");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:3","tag3");
+		ObjectId _id = new ObjectId();
+		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:1","tag1");
+		_id = new ObjectId();
+		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:2","tag2");
+		_id = new ObjectId();
+		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:3","tag3");
 		MongoUtil.getInstance().getUserDetails("Testuser","1");
 		//MongoUtil.getInstance().dropDatabase();
 	}
