@@ -44,7 +44,6 @@ public class FileServer {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName)
 	{
-		System.out.println(userName);
 		File directory = new File(AppStart.UPLOAD_DIR);
 		strBuffer.append(userName+"\\");
 		File userDirectory = new File(strBuffer.toString());
