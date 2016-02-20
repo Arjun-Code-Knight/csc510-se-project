@@ -47,13 +47,14 @@ public class MongoUtil {
 		initilaized = true;
 	}
 	
-	public boolean addLinkToUser(String userId, String link){
+	public boolean addLinkToUser(String userId, String link,String ocrWords){
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		Document insertUser = new Document();
 		insertUser.put("name", userId);
 		insertUser.put("url", link);
+		insertUser.put("tags", ocrWords);
 		try{
 			database.getCollection(mongoCollection).insertOne(insertUser);
 			status = true;
@@ -79,7 +80,33 @@ public class MongoUtil {
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
-				returnJson.add(iter.next());
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")));
+			}
+			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	public String getUserDetails(String userId,String searchParam)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("name", userId);
+		queryUser.put("tags", new Document().append("$regex", ".*"+searchParam+".*").append("$options", "i"));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")));
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
@@ -158,10 +185,10 @@ public class MongoUtil {
 		MongoUtil.getInstance().dropDatabase();
 		//MongoUtil.getInstance().createUser("Testuser");
 		MongoUtil.getInstance().checkIfUserExists("Testuser");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:1");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:2");
-		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:3");
-		//MongoUtil.getInstance().getUserDetails("Testuser");
+		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:1","tag1");
+		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:2","tag2");
+		MongoUtil.getInstance().addLinkToUser("Testuser","http://localhost:3","tag3");
+		MongoUtil.getInstance().getUserDetails("Testuser","1");
 		//MongoUtil.getInstance().dropDatabase();
 	}
 	
