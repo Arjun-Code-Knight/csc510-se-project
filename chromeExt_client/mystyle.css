@@ -1,0 +1,15 @@
+.rect1
+{
+	background: red;
+	height: 200px;
+	width: 200px;
+}
+
+.rect2
+{
+	background: blue;
+	height: 200px;
+	width: 200px;
+	margin: 20px;
+}
+
