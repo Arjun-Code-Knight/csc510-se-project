@@ -1,0 +1,12 @@
+<div class = "header">
+  <div class = "title">{{title}}</div>
+  <div class = "userName">{{$scope.userName}}</div>
+</div>
+<div class = "body">
+  <div class = "signUpContainer">
+    <form class="pure-form pure-form-stacked" ng-submit="getInFunc()">
+      <input type="text" ng-model="userName" class = "userNameInput" placeholder="{{placeHolder}}"></input>
+      <input class="button-large pure-button pure-button-primary userNameSubmit" type="submit" value="{{getIn}}">
+    </form>
+  </div>
+</div>
