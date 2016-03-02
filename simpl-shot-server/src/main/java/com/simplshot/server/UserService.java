@@ -40,6 +40,18 @@ public class UserService {
 	}
 	
 	@GET	
+	@Path("/chrome/{userId}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserdetailsForChrome(@PathParam("userId") String userId)
+	{
+		String responseFromMongo = mongoUtil.getUserDetails(userId);
+		LOGGER.info("The user Id is "+userId);
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+		
+	}
+	
+	
+	@GET	
 	@Path("/{userId}/{search}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetails(@PathParam("userId") String userId,@PathParam("search") String searchparam)
