@@ -11,3 +11,28 @@ drawbacks. Although a sparse population is aware of screenshot applications, not
 
 Observation videos : http://tinyurl.com/hftdkj4
  
+#Group members:
+[Arjun Thimmareddy] (https://github.com/Arjun-Code-Knight) ,
+[Ankit Murarka] (https://github.com/amurark) ,
+[Sushma Ravichandran] (https://github.com/sushmarchandran) ,
+[Sukriti Sharma] (https://github.com/Ssukriti)
+
+Demo slot timing: Friday, March 4th, 11:30 AM </br>
+
+Submission for March 1st Milestones</br>
+[milestone1 - "Implementing the chrome plugin"] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones/Chrome%20Plugin) <br/>
+[milestone2 - "Implmentation of the Desktop application"] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones/Solution%201:%20Desktop%20App%20closure)<br/>
+[milestone3 - "Integrating server and client code"] 
+(https://github.com/Arjun-Code-Knight/csc510-se-project/milestones/integrating%20client%20and%20server%20side%20code)<br/>
+
+
+#Quick Links:
+a. [Server Code base:] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-server)
+<p> The server is built as a common base which serves JSON for all the approaches. The solution varies based on usability on the front end.</p>
+b. [Solution1] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-client) :
+<p>Desktop client with ability to take screenshots and view user history of all the prevvious screen shots</p>
+c. [Solution2]  (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/chromeExt_client) :
+<p>Chrome extension to help take screenshots</p>
+d. [Solution3] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-client-search) :
+<p>Desktop client with ability to take screenshots and search based on the contents in the image</p>
+	
