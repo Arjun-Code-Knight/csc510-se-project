@@ -2,6 +2,7 @@ package com.simplshot.mongo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,6 +26,7 @@ public class MongoUtil {
 	public static String mongoPort;
 	public static String mongoDB;
 	public static String mongoCollection;
+	public static String mongoTelemtryCollection;
 	public static final Logger LOGGER = Logger.getLogger(MongoUtil.class.getName());
 	
 	private MongoUtil()
@@ -72,7 +74,7 @@ public class MongoUtil {
 	}
 	
 	
-	public String getUserDetails(String userId)
+	public String getUserDetails(String userId, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
@@ -87,6 +89,7 @@ public class MongoUtil {
 				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")));
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
+			updateTelemetry(userId,solutionType);
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
 			LOGGER.severe("Error Checking User");
@@ -96,7 +99,7 @@ public class MongoUtil {
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
 	
-	public String getUserDetails(String userId,String searchParam)
+	public String getUserDetails(String userId,String searchParam, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
@@ -112,6 +115,7 @@ public class MongoUtil {
 				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")));
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
+			updateTelemetry(userId,solutionType);
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
 			LOGGER.severe("Error Checking User");
@@ -183,18 +187,63 @@ public class MongoUtil {
 		return status;
 	}
 	
+	public boolean updateTelemetry(String userId,String solutionType)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			Document insertStats = new Document();
+			insertStats.put("name", userId);
+			insertStats.put("solutionType", solutionType);
+			insertStats.put("time", new Date());
+			database.getCollection(mongoTelemtryCollection).insertOne(insertStats);
+			status = true;
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Updating Telemetry for the solution");
+		}finally{
+			client.close();
+		}
+		LOGGER.info("Updated telemtry for the user and solution Type");
+		return status;
+	}
+	
+	public String getUsageStatistics()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("name", tmp.get("name")).append("solutionType", tmp.get("solutionType")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
 	public static void main(String[] args) {
 		AppStart.loadProperties();
 		MongoUtil.getInstance().dropDatabase();
 		//MongoUtil.getInstance().createUser("Testuser");
 		MongoUtil.getInstance().checkIfUserExists("Testuser");
 		ObjectId _id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:1","tag1");
+		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1");
 		_id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:2","tag2");
+		//MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:2","tag2");
 		_id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:3","tag3");
-		MongoUtil.getInstance().getUserDetails("Testuser","1");
+		//MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:3","tag3");
+		MongoUtil.getInstance().getUserDetails("TESTUSER1","SOLUTION1");
+		MongoUtil.getInstance().getUsageStatistics();
 		//MongoUtil.getInstance().dropDatabase();
 	}
 	

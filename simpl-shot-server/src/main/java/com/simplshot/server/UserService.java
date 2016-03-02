@@ -16,6 +16,9 @@ public class UserService {
 
 	private static final int ERROR = 500;
 	private static final int SUCCESS = 200;
+	private static final String SOLUTION1 = "SOLUTION1-DESKTOPWITHOUTSERACH";
+	private static final String SOLUTION2 = "SOLUTION2-CHROME";
+	private static final String SOLUTION3 = "SOLUTION3-DESKTOPWITHSEARCH";
 	private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 	private MongoUtil mongoUtil = MongoUtil.getInstance();
 	
@@ -33,7 +36,7 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetails(@PathParam("userId") String userId)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId);
+		String responseFromMongo = mongoUtil.getUserDetails(userId,SOLUTION1);
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
@@ -44,7 +47,7 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetailsForChrome(@PathParam("userId") String userId)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId);
+		String responseFromMongo = mongoUtil.getUserDetails(userId,SOLUTION2);
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
@@ -56,10 +59,20 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetails(@PathParam("userId") String userId,@PathParam("search") String searchparam)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam);
+		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION3);
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
+	}
+	
+	@GET	
+	@Path("/getusagestats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response get()
+	{
+		String responseFromMongo = mongoUtil.getUsageStatistics();
+		LOGGER.info("Get usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
 	
 }
