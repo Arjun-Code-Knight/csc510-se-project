@@ -54,6 +54,7 @@ public class AppStart {
 	    	MongoUtil.mongoPort = (String) prop.get("MONGOPORT");
 	    	MongoUtil.mongoDB = (String) prop.get("MONGODB");
 	    	MongoUtil.mongoCollection = (String) prop.get("MONGOCOLLECTION");
+	    	MongoUtil.mongoTelemtryCollection = (String) prop.get("MONGOTELEMETRY");
     	}
     	catch(Exception ex)
     	{
