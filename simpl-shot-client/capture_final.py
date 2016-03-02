@@ -1,28 +1,16 @@
+import os, sys, Queue, numpy, urllib2, json
+from PySide.QtCore import *
+from PySide.QtGui import *
 import time
-import sys,os
-import threading
-import Queue
-import numpy
-import urllib2
-from PySide import QtGui, QtCore
-from PySide.QtGui import QPixmap, QApplication, QMainWindow,QWidget,\
-                        QPushButton,QVBoxLayout,QPainter,QCursor,QSpinBox,\
-                        QLabel,QGridLayout,QLineEdit,QButtonGroup,QRadioButton, \
-                        QGroupBox,QLayout,QRubberBand,QFocusEvent,QLabel
-
-from PySide.QtCore import SIGNAL,Qt, QThread,QRect,QSize,QEvent
-
-from PySide import QtCore
-from PySide import QtGui
-import json
 from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
-
+from PySide import QtGui, QtCore
 
 class TransWindow(QWidget,QPixmap):
-    
-    def __init__(self,QPixmap):
+    def __init__(self,QPixmap,usr):
+        global usrnm
+        usrnm = usr
         QWidget.__init__(self,None,Qt.Window)
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -47,6 +35,7 @@ class TransWindow(QWidget,QPixmap):
         self.rubberBand.setGeometry(QRect(self.origin, event.pos()).normalized())
 
     def mouseReleaseEvent(self, event):
+        print "Kindly wait while the image is being uploaded.."
         print self.origin
         print event.pos()
         self.obj=QRect(self.origin,event.pos())
@@ -56,21 +45,23 @@ class TransWindow(QWidget,QPixmap):
         px2.save(('ffff.jpg'))
         register_openers()
         ob = open("ffff.jpg","rb")
-        datagen, headers = multipart_encode({"attachment":ob,"USER":"TESTUSER3"})
+        datagen, headers = multipart_encode({"attachment":ob,"USER":usrnm})
         request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
+        print "Thank you for your patience. You may continue using the tool."
         ob.close()
         os.remove("ffff.jpg")
-        
 
         
 class OptionsContainer(QWidget):
-    def __init__(self,main_window):
+    def __init__(self,main_window, usrnm):
+        global usr
+        usr = usrnm
         QWidget.__init__(self)
         self.main_window = main_window
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        
+
         self.lr = numpy.zeros(2)
         
         self.sa_show_bt = QPushButton("Show Area")
@@ -85,11 +76,11 @@ class OptionsContainer(QWidget):
         
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
-
         
    
     def show_history(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        print "Showing History. Please Wait"
+        data_returned = urllib2.urlopen("http://localhost:8080/user/" + usr + "/").read()#testUSER3 hardcoded
         all_urls = []
         l = literal_eval(data_returned)
         for each in l:
@@ -101,16 +92,15 @@ class OptionsContainer(QWidget):
         
         
     def select_area(self):
-        print "select_area"
+        print "select an area to snip"
         self.main_window.showMinimized()
         self.clicked  = False
         time.sleep(0.5)
         pixmap = QPixmap.grabWindow(QApplication.desktop().winId())
         print pixmap
-        self.tw = TransWindow(pixmap)
+        self.tw = TransWindow(pixmap,usr)
         self.tw.mouse_press = False
         self.tw.show()
-        
         px2 = pixmap.copy(self.tw.obj)
         px2.save('ffff.jpg')
                 
@@ -134,7 +124,7 @@ class Thumbnail(QtGui.QWidget):
         qbtn = QtGui.QPushButton('Quit', self)
         qbtn.clicked.connect(self.close)
         qbtn.resize(qbtn.sizeHint())
-        qbtn.move(50, 50)
+        qbtn.move(20, 20)
         
         for each in url:
             data = urllib2.urlopen(each).read()
@@ -147,35 +137,56 @@ class Thumbnail(QtGui.QWidget):
             self.layout.addWidget(lbl)
         
         self.setGeometry(200, 200, 400, 400)
-        self.setWindowTitle('Snippet Tool')
+        self.setWindowTitle('Snippet Tool History')
         self.show()
 
         
 class MainWindow(QMainWindow):
-    def __init__(self):
-        #QMainWindow.__init__(self,None,Qt.WindowStaysOnTopHint)
+    def __init__(self, usrnm):
         QMainWindow.__init__(self,None)
-        self.options = OptionsContainer(self)
+        self.options = OptionsContainer(self, usrnm)
         self.setCentralWidget(self.options)
-        
         self.arrow_icon = os.path.abspath(os.path.dirname(__file__)+"/cursor3.png")
         print "self.arrow_icon",self.arrow_icon
-    
-        
+
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Q:
             sys.exit()
 
+class Form(QDialog):
+    def __init__(self, parent=None):
+        super(Form, self).__init__(parent)
 
-        
+        self.le = QLineEdit()
+        self.le.setObjectName("username")
+        self.le.setText("TestUser")
+
+        self.pb = QPushButton()
+        self.pb.setObjectName("login")
+        self.pb.setText("Log In!") 
+
+        layout = QFormLayout()
+        layout.addWidget(self.le)
+        layout.addWidget(self.pb)
+
+        self.setLayout(layout)
+        self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.setWindowTitle("Snippet Tool")
+
+    def button_click(self):
+        usrnm = self.le.text()
+        self.close()
+        print "Logged in as: ",usrnm
+        window = MainWindow(usrnm)
+        window.show()
+
+
 if __name__ == '__main__':
     global app
     app = QApplication(sys.argv)
-    
-    window = MainWindow()
+    window = Form()
     window.show()
-    #myQTestWidget = QCustomWidget()
-    #myQTestWidget.show()
     
     try:
         sys.exit(app.exec_())
@@ -184,5 +195,3 @@ if __name__ == '__main__':
             raise()
         os._exit(0)
     
-    #sys.exit(app.exec_())
-
