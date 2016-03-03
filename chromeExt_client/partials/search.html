@@ -3,7 +3,12 @@
   <div class = "userName">{{userName}}</div>
 </div>
 <div class = "body">
-  <div class = "imageGridContainer">
+  <div class = "inputContainer">
+    <form ng-submit="search()">
+      <input class = "tagInput" placeHolder = "{{enterTags}}" ng-model = "enteredTag"/>
+    </form>
+  </div>
+  <div class = "imageGridContainer1">
     <div class="pure-u-1-2" ng-repeat="x in userData">
       <img class = "userImages" ng-src = {{x.url}} ng-click="expandImage(this)" />
     </div>

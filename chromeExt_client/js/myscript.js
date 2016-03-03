@@ -79,6 +79,10 @@ document.onmousedown = function(e) {
 						coords.width, coords.height);
 					newWindow.appendChild(c);
 					removeDivsAndEvents();
+					var dataUrl = c.toDataURL();
+					chrome.extension.sendMessage({name: "upload", data: dataUrl}, function(dataUrl){
+						console.log("UPLOADED :P");
+					});
 				}
 			}
 
