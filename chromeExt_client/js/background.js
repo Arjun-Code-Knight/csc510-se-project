@@ -6,11 +6,14 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     else if(request.name == 'coords') {
     	cropImage(request.coords, sendResponse);
     }
+    else if(request.name == "upload") {
+        uploadFile(request.data);
+    }
     return true;
 });
 
 function captureTab(sendResponse) {
-	var IMG_QUALITY = 80; 
+	var IMG_QUALITY = 80;
 	var IMG_MIMETYPE = 'jpeg';
 	var opts = {format: IMG_MIMETYPE, quality: IMG_QUALITY};
     chrome.tabs.captureVisibleTab(null, opts, function(dataUrl) {
@@ -26,3 +29,14 @@ function cropImage(coords, callback) {
 	callback(imgUrl);
 }
 
+function uploadFile(c) {
+
+  var formData = new FormData();
+  var image1 = new Image();
+  image1.src = c;
+  var dataUrl1 = c.replace(/^data:image\/(png|jpeg);base64,/, "");
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://192.168.0.15:8080/uploadService/chrome/file");
+  xhr.send(formData);
+}

@@ -1,0 +1,25 @@
+<div class = "header">
+  <div class = "title">{{title}}</div>
+  <div class = "userName">{{name}}</div>
+</div>
+<div class = "body">
+  <!-- <div class = "imageGridContainer">
+    <div class="pure-u-1-2">
+      <img class = "userImages" ng-src = {{url}} />
+    </div>
+    <div class="pure-u-1-2">
+      <img class = "userImages" ng-src = {{url}} />
+    </div>
+    <div class="pure-u-1-2">
+      <img class = "userImages" ng-src = {{url}} />
+    </div>
+    <div class="pure-u-1-2">
+      <img class = "userImages" ng-src = {{url}} />
+    </div>
+  </div> -->
+  <div class = "imageGridContainer">
+    <div class="pure-u-1-2" ng-repeat="x in userData">
+      <img class = "userImages" ng-src = {{x.url}} />
+    </div>
+  </div>
+</div>

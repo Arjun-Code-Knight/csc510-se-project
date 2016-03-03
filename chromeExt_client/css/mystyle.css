@@ -47,6 +47,7 @@ body
 	top: 55px;
 	bottom: 0;
 	width: 100%;
+	background: #ecf0f1;
 }
 
 .signUpContainer
@@ -92,4 +93,19 @@ input.showHistory
   background: #2980b9;
   font-size: 120%;
 	width: 140px;
+}
+
+.imageGridContainer{
+  position: relative;
+	padding: 10px;
+	box-sizing: border-box;
+	height: 100%;
+	overflow: auto;
+	font-size: 0;
+}
+
+.userImages {
+	padding: 10px 20px;
+	height: 100px;
+	width: 100px;
 }
