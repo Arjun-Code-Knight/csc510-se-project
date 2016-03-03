@@ -22,7 +22,7 @@ from poster.encode import multipart_encode
 
 class TransWindow(QWidget,QPixmap):
     
-    def __init__(self,QPixmap):
+    def __init__(self,QPixmap,main_window):
         QWidget.__init__(self,None,Qt.Window)
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -30,6 +30,7 @@ class TransWindow(QWidget,QPixmap):
         self.showMaximized()
         self.activateWindow()
         self.raise_()
+        self.main_window =main_window
         self.setWindowFlags(Qt.Window | Qt.WindowStaysOnTopHint  | Qt.X11BypassWindowManagerHint \
                             | Qt.FramelessWindowHint )
         self.obj=QRect(0,0,0,0)
@@ -49,18 +50,34 @@ class TransWindow(QWidget,QPixmap):
     def mouseReleaseEvent(self, event):
         print self.origin
         print event.pos()
-        self.obj=QRect(self.origin,event.pos())
+        ####
+        diff= abs(event.pos().x() - self.origin.x())
+        print diff
+        y_diff = abs(event.pos().y() - self.origin.y())
+        print y_diff
+        #####
+        origin_left=self.origin.x()
+        origin_top=self.origin.y()
+        if event.pos().x() < self.origin.x() :
+            origin_left= event.pos().x()
+        #print event.pos().y()
+        if event.pos().y() <self.origin.y():
+            origin_top=event.pos().y()   
+
+        self.obj=QRect(origin_left,origin_top, diff,y_diff)   
+        #self.obj=QRect(self.origin,event.pos())
         self.rubberBand.hide()
         self.hide()
         px2=self.pixmap.copy(self.obj)
-        px2.save(('ffff.jpg'))
+        px2.save(('temp_copy.jpg'))
         register_openers()
-        ob = open("ffff.jpg","rb")
+        ob = open("temp_copy.jpg","rb")
         datagen, headers = multipart_encode({"attachment":ob,"USER":"TESTUSER3"})
-        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
+        request = urllib2.Request('http://192.168.0.15:8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
+        self.main_window.show()
         ob.close()
-        os.remove("ffff.jpg")
+        os.remove("temp_copy.jpg")
         
 
         
@@ -89,8 +106,10 @@ class OptionsContainer(QWidget):
         
    
     def show_history(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://192.168.0.15:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
         all_urls = []
+        print "data returned"
+        print data_returned
         l = literal_eval(data_returned)
         for each in l:
             temp = each['url']
@@ -107,12 +126,12 @@ class OptionsContainer(QWidget):
         time.sleep(0.5)
         pixmap = QPixmap.grabWindow(QApplication.desktop().winId())
         print pixmap
-        self.tw = TransWindow(pixmap)
+        self.tw = TransWindow(pixmap,self.main_window)
         self.tw.mouse_press = False
         self.tw.show()
         
         px2 = pixmap.copy(self.tw.obj)
-        px2.save('ffff.jpg')
+        px2.save('temp_copy.jpg')
                 
         
 class Thumbnail(QtGui.QWidget):
@@ -141,11 +160,20 @@ class Thumbnail(QtGui.QWidget):
             image = QtGui.QImage()
             image.loadFromData(data)
             lbl = QtGui.QLabel(self)
+            lbl2=QtGui.QLabel(self)
             pixmap = QtGui.QPixmap(image)
             pixmap = pixmap.scaled(100, 100, QtCore.Qt.KeepAspectRatio)
+            #print "data"
+            #print each
+            url_disp=QLineEdit()
+            #lbl.setTextFormat(Qt.RichText)
+            #print "<img src='http://ankit1590.s3.amazonaws.com/TESTUSER356d798e04c5dd119cc304889temp_copy.jpg' height=\"200\" width=\"200\" >ddd"
+            #lbl.setText("<img src='http://ankit1590\.s3\.amazonaws\.com/TESTUSER356d798e04c5dd119cc304889temp_copy\.jpg' height=\"200\" width=\"200\" >ddd")
             lbl.setPixmap(pixmap)
+            url_disp.setText(each)
+            #lbl2.setText(each)
             self.layout.addWidget(lbl)
-        
+            self.layout.addWidget(url_disp)
         self.setGeometry(200, 200, 400, 400)
         self.setWindowTitle('Snippet Tool')
         self.show()
@@ -161,10 +189,11 @@ class MainWindow(QMainWindow):
         self.arrow_icon = os.path.abspath(os.path.dirname(__file__)+"/cursor3.png")
         print "self.arrow_icon",self.arrow_icon
     
-        
+    '''    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Q:
             sys.exit()
+    '''
 
 
         
