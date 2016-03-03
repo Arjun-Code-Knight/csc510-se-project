@@ -35,4 +35,6 @@ c. [Solution2]  (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/mas
 <p>Chrome extension to help take screenshots</p>
 d. [Solution3] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-client-search) :
 <p>Desktop client with ability to take screenshots and search based on the contents in the image</p>
-	
+
+#Telemetry:
+The server keeps track of the usage and solutions being used across by users. We can mine the data from this to determine trends and usage patterns of the solutions.
