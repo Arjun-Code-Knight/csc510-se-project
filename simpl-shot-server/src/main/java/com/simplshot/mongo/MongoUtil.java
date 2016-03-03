@@ -99,6 +99,31 @@ public class MongoUtil {
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
 	
+	public String getUserDetailsForChrome(String userId, String solutionType)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("name", userId);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")).append("tags", tmp.get("tags")));
+			}
+			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
+			updateTelemetry(userId,solutionType);
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
 	public String getUserDetails(String userId,String searchParam, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -229,6 +254,70 @@ public class MongoUtil {
 			client.close();
 		}
 		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	public boolean updateTagsForUser(String fileUrl, String newTag)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryImage = new Document();
+		queryImage.put("url", fileUrl);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryImage);
+			Iterator<Document> iter = cur.iterator();
+			Document updateJson = new Document();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				String currTags = tmp.getString("tags");
+				currTags = currTags == null?"":currTags; 
+				updateJson.append("$set", new Document().append("tags",currTags+"|"+newTag));
+			}
+			database.getCollection(mongoCollection).updateOne(queryImage, updateJson);
+			status = true;
+			/***
+			 * Check if update is done
+			 */
+			cur = database.getCollection(mongoCollection).find(queryImage);
+			iter = cur.iterator();
+			while(iter.hasNext()){
+				LOGGER.fine("Updated data "+JSON.serialize(iter.next()));
+			}
+			LOGGER.info("Found User with UserID details -- "+JSON.serialize(updateJson));
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return status;
+	}
+	
+	public boolean deleteTagsForUser(String fileUrl, String deleteTag)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryImage = new Document();
+		queryImage.put("url", fileUrl);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryImage);
+			Iterator<Document> iter = cur.iterator();
+			Document updateJson = new Document();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				String currTags = tmp.getString("tags");
+				currTags = currTags == null?"":currTags.replace(deleteTag, ""); 
+				updateJson.append("$set", new Document().append("tags",currTags));
+			}
+			database.getCollection(mongoCollection).updateOne(queryImage, updateJson);
+			status = true;
+			LOGGER.info("Found User with UserID details -- "+JSON.serialize(updateJson));
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return status;
 	}
 	
 	public static void main(String[] args) {

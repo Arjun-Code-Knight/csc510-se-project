@@ -18,8 +18,12 @@ import org.bson.types.ObjectId;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lowagie.text.pdf.codec.Base64;
 import com.simplshot.mongo.MongoUtil;
+import com.simplshot.mongo.UpdateUserTag;
 import com.simplshot.ocr.OcrUtility;
 
 /*
@@ -115,6 +119,61 @@ public class FileServer {
 		}
 	}
 	
+	@POST
+	@Path("/chrome/tags")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response uploadTagsFromChrome(String updateTag)
+	{
+			boolean status = false;
+			LOGGER.info("tags "+updateTag);
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				UpdateUserTag details = mapper.readValue(updateTag, UpdateUserTag.class);
+				status = MongoUtil.getInstance().updateTagsForUser(details.getfileName(),details.getTags());
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(status)
+				return Response.status(200).entity(SUCCESS).build();
+			else
+				return Response.status(500).entity(ERROR).build();
+	}
+	
+	@POST
+	@Path("/chrome/deletetags")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response deleteTagsForChrome(String jsonRequpdateTag)
+	{
+			boolean status = false;
+			LOGGER.info("tags "+jsonRequpdateTag);
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				UpdateUserTag details = mapper.readValue(jsonRequpdateTag, UpdateUserTag.class);
+				status = MongoUtil.getInstance().deleteTagsForUser(details.getfileName(),details.getTags());
+			} catch (JsonParseException e) {
+				LOGGER.severe(e.getMessage());
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				LOGGER.severe(e.getMessage());
+				e.printStackTrace();
+			} catch (IOException e) {
+				LOGGER.severe(e.getMessage());
+				e.printStackTrace();
+			}
+			if(status)
+				return Response.status(200).entity(SUCCESS).build();
+			else
+				return Response.status(500).entity(ERROR).build();
+	}
 
 	private boolean saveFile(InputStream inpStream, String outputFile)
 	{

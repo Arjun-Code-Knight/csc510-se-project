@@ -47,7 +47,7 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetailsForChrome(@PathParam("userId") String userId)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,SOLUTION2);
+		String responseFromMongo = mongoUtil.getUserDetailsForChrome(userId,SOLUTION2);
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
