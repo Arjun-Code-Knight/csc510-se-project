@@ -3,14 +3,13 @@
 // script.src = 'http://code.jquery.com/jquery-1.11.0.min.js';
 // script.type = 'text/javascript';
 // document.getElementsByTagName('head')[0].appendChild(script);
-console.log("hey123");
 var sTop = document.body.scrollTop;
 var sLeft = document.body.scrollLeft;
 var div = document.createElement( 'div' );
 var h = window.innerHeight;
 var w = window.innerWidth;
 div.className = "modalDiv";
-document.body.appendChild( div );	
+document.body.appendChild( div );
 div.style.height = h+"px";
 div.style.width = w+"px";
 div.style.backgroundColor = "rgba(0,0,0,0.2)";
@@ -18,7 +17,7 @@ div.style.position = "absolute";
 div.style.top = sTop+"px";
 div.style.left = sLeft+"px";
 div.style.display = "block";
-div.style.zIndex = "10000000";
+div.style.zIndex = "2000000000";
 
 
 document.body.style.cursor = "crossHair";
@@ -35,8 +34,8 @@ document.onmousedown = function(e) {
 	this.onmouseup = function(e) {
 		finalX = e.clientX;
 		finalY = e.clientY
-
-    	document.onmousemove = null
+		chrome.extension.sendMessage({name: "screenshot"}, function(response) {
+			document.onmousemove = null
     	var coords = {
     		left : initX<finalX?initX:finalX,
     		width : Math.abs(initX-finalX),
@@ -60,7 +59,7 @@ document.onmousedown = function(e) {
     		//commented for now
 			//newWindow.appendChild(image);
 
-			
+
 			var devRes = window.devicePixelRatio?window.devicePixelRatio:1;
 			if(devRes == 1){
 				image.onload = function() {
@@ -73,16 +72,16 @@ document.onmousedown = function(e) {
 					ctx.mozImageSmoothingEnabled = false;
 					ctx.msImageSmoothingEnabled = false;
 					ctx.imageSmoothingEnabled = false;
-					ctx.drawImage(image, 
+					ctx.drawImage(image,
 						coords.left*devRes, coords.top*devRes,
 						coords.width*devRes, coords.height*devRes,
 						0,0,
 						coords.width, coords.height);
 					newWindow.appendChild(c);
 					removeDivsAndEvents();
-				}	
+				}
 			}
-			
+
 			else {
 				image.onload = function() {
 					var c = document.createElement("canvas");
@@ -97,17 +96,23 @@ document.onmousedown = function(e) {
 					ctx.mozImageSmoothingEnabled = false;
 					ctx.msImageSmoothingEnabled = false;
 					ctx.imageSmoothingEnabled = false;
-					ctx.drawImage(image, 
+					ctx.drawImage(image,
 						coords.left*devRes, coords.top*devRes,
 						coords.width*devRes, coords.height*devRes,
 						0,0,
 						coords.width, coords.height);
 					newWindow.appendChild(c);
 					removeDivsAndEvents();
+					var dataUrl = c.toDataURL();
+					chrome.extension.sendMessage({name: "upload", data: dataUrl}, function(dataUrl){
+						console.log("UPLOADED :P");
+					});
 				}
 			}
     	});
-		
+		});
+
+
   	}
 }
 
@@ -116,7 +121,7 @@ function captureCoords(e) {
 		//document.body.removeChild(div);
 		if(div.style.backgroundColor == "rgba(0, 0, 0, 0.2)") {
 			div.style.backgroundColor = "rgba(0, 0, 0, 0)";
-			
+
 			leftDiv = document.createElement( 'div' );
 			leftDiv.className = "leftDiv";
 			leftDiv.style.backgroundColor = "rgba(0,0,0,0.2)";
@@ -133,7 +138,7 @@ function captureCoords(e) {
 			topDiv.className = "topDiv";
 			topDiv.style.backgroundColor = "rgba(0,0,0,0.2)";
 			topDiv.style.position = "absolute";
-			div.appendChild(topDiv);	
+			div.appendChild(topDiv);
 
 			bottomDiv = document.createElement( 'div' );
 			bottomDiv.className = "bottomDiv";
@@ -145,8 +150,7 @@ function captureCoords(e) {
 			snipDiv.className = "snipDiv";
 			snipDiv.style.backgroundColor = "rgba(255,255,255,0)";
 			snipDiv.style.position = "absolute";
-			snipDiv.style.border = "1px dashed #000";
-			div.appendChild(snipDiv);			
+			div.appendChild(snipDiv);
 		}
 		if(leftDiv) {
 			leftDiv.style.left = 0;
@@ -155,7 +159,7 @@ function captureCoords(e) {
 			var widthL = initX<e.clientX?initX:e.clientX;
 			leftDiv.style.width = widthL+"px";
 			var heightL = Math.abs(e.clientY-initY);
-			leftDiv.style.height = heightL+"px";	
+			leftDiv.style.height = heightL+"px";
 
 			var rLeft = initX>e.clientX?initX:e.clientX;
 			rightDiv.style.left = rLeft+"px";
@@ -169,7 +173,7 @@ function captureCoords(e) {
 			topDiv.style.top = 0;
 			topDiv.style.width = 100+"%";
 			var heightT = initY<e.clientY?initY:e.clientY;
-			topDiv.style.height = heightT+"px";	
+			topDiv.style.height = heightT+"px";
 
 			bottomDiv.style.left = 0;
 			var topB = initY>e.clientY?initY:e.clientY;
@@ -186,7 +190,7 @@ function captureCoords(e) {
 			var topS = initY<e.clientY?initY:e.clientY;
 			snipDiv.style.top = topS+"px";
 		}
-		
+
 	}
 }
 
@@ -198,9 +202,3 @@ function removeDivsAndEvents() {
 	document.onmouseup = null;
 	document.body.style.cursor = "auto";
 }
-
-
-
-
-
-

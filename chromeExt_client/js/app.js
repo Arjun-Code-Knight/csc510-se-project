@@ -22,6 +22,10 @@ snipItApp.config(['$routeProvider',
         templateUrl: 'partials/home.html',
         controller: 'HomeControl'
       }).
+      when('/history', {
+        templateUrl: 'partials/history.html',
+        controller: 'HistoryControl'
+      }).
       otherwise({
         templateUrl: 'partials/snipIt.html',
         controller: 'SnipItControl'
