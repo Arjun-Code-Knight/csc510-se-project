@@ -1,24 +1,12 @@
+
+import os, sys, Queue, numpy, urllib2, json
+from PySide.QtCore import *
+from PySide.QtGui import *
 import time
-import sys,os
-import threading
-import Queue
-import numpy
-import urllib2
-from PySide import QtGui, QtCore
-from PySide.QtGui import QPixmap, QApplication, QMainWindow,QWidget,\
-                        QPushButton,QVBoxLayout,QPainter,QCursor,QSpinBox,\
-                        QLabel,QGridLayout,QLineEdit,QButtonGroup,QRadioButton, \
-                        QGroupBox,QLayout,QRubberBand,QFocusEvent,QLabel
-
-from PySide.QtCore import SIGNAL,Qt, QThread,QRect,QSize,QEvent
-
-from PySide import QtCore
-from PySide import QtGui
-import json
 from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
-
+from PySide import QtGui, QtCore
 
 class TransWindow(QWidget,QPixmap):
     
@@ -73,7 +61,7 @@ class TransWindow(QWidget,QPixmap):
         register_openers()
         ob = open("temp_copy.jpg","rb")
         datagen, headers = multipart_encode({"attachment":ob,"USER":"TESTUSER3"})
-        request = urllib2.Request('http://192.168.0.15:8080/uploadService/file',datagen, headers)
+        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         ob.close()
@@ -106,7 +94,7 @@ class OptionsContainer(QWidget):
         
    
     def show_history(self):
-        data_returned = urllib2.urlopen("http://192.168.0.15:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
         all_urls = []
         print "data returned"
         print data_returned
@@ -162,7 +150,7 @@ class Thumbnail(QtGui.QWidget):
             lbl = QtGui.QLabel(self)
             lbl2=QtGui.QLabel(self)
             pixmap = QtGui.QPixmap(image)
-            pixmap = pixmap.scaled(100, 100, QtCore.Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(200, 200, QtCore.Qt.KeepAspectRatio)
             #print "data"
             #print each
             url_disp=QLineEdit()
@@ -180,7 +168,7 @@ class Thumbnail(QtGui.QWidget):
 
         
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self,usrnm):
         #QMainWindow.__init__(self,None,Qt.WindowStaysOnTopHint)
         QMainWindow.__init__(self,None)
         self.options = OptionsContainer(self)
@@ -194,17 +182,39 @@ class MainWindow(QMainWindow):
         if event.key() == Qt.Key_Q:
             sys.exit()
     '''
+class Form(QDialog):
+    def __init__(self, parent=None):
+        super(Form, self).__init__(parent)
+
+        self.le = QLineEdit()
+        self.le.setObjectName("username")
+        self.le.setText("TestUser")
+
+        self.pb = QPushButton()
+        self.pb.setObjectName("login")
+        self.pb.setText("Log In!") 
+
+        layout = QFormLayout()
+        layout.addWidget(self.le)
+        layout.addWidget(self.pb)
+
+        self.setLayout(layout)
+        self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.setWindowTitle("Snippet Tool")
+
+    def button_click(self):
+        usrnm = self.le.text()
+        self.close()
+        print "Logged in as: ",usrnm
+        window = MainWindow(usrnm)
+        window.show()
 
 
-        
 if __name__ == '__main__':
     global app
     app = QApplication(sys.argv)
-    
-    window = MainWindow()
+    window = Form()
     window.show()
-    #myQTestWidget = QCustomWidget()
-    #myQTestWidget.show()
     
     try:
         sys.exit(app.exec_())
@@ -213,5 +223,5 @@ if __name__ == '__main__':
             raise()
         os._exit(0)
     
-    #sys.exit(app.exec_())
 
+ 
