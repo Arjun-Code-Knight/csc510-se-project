@@ -57,7 +57,7 @@ class TransWindow(QWidget,QPixmap):
         register_openers()
         ob = open("temp_copy.jpg","rb")
         datagen, headers = multipart_encode({"attachment":ob,"USER":usrnm})
-        request = urllib2.Request('http://192.168.0.15:8080/uploadService/file',datagen, headers)
+        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         print "Thank you for your patience. You may continue using the tool."
@@ -127,7 +127,7 @@ class SearchTab(QtGui.QWidget):
 
     def search_results(self):
         s = self.qsbar.text()
-        data_returned = urllib2.urlopen("http://192.168.0.15:8080/user/" + user + "/" + s + "/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://localhost:8080/user/" + user + "/" + s + "/").read()#testUSER3 hardcoded
         l = literal_eval(data_returned)        
         all_urls = []
         for each in l:
@@ -164,9 +164,12 @@ class Thumbnail(QtGui.QWidget):
             image.loadFromData(data)
             lbl = QtGui.QLabel(self)
             pixmap = QtGui.QPixmap(image)
-            pixmap = pixmap.scaled(100, 100, QtCore.Qt.KeepAspectRatio)
+            pixmap = pixmap.scaled(200, 200, QtCore.Qt.KeepAspectRatio)
+            url_disp=QLineEdit()
             lbl.setPixmap(pixmap)
+            url_disp.setText(each)
             self.layout.addWidget(lbl)
+            self.layout.addWidget(url_disp)
         self.setGeometry(200, 200, 400, 400)
         self.setWindowTitle('Snippet Tool History')
         self.show()
