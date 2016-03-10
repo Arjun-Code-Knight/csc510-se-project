@@ -70,8 +70,10 @@ snipItControllers.controller('HomeControl', ['$scope', '$routeParams','$location
 snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$location',
 	function($scope, $routeParams, $location) {
 		$scope.title = "Snip It!";
-		$scope.placeHolder = "UserName";
-		$scope.getIn = "Get In!";
+		$scope.placeHolderName = "UserName";
+    $scope.placeHolderEmail = "Email";
+    $scope.placeHolderAge = "Age";
+		$scope.getIn = "Sign Up!";
 		$scope.userName;
 		$scope.getInFunc = function() {
 			if($scope.userName) {
@@ -80,7 +82,6 @@ snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$locati
 					userName = $scope.userName;
 					$location.url('/home');
 			}
-
 		}
 	}
 ]);
@@ -91,7 +92,7 @@ snipItControllers.controller('HistoryControl', ['$scope', '$routeParams','$locat
 		$scope.userName = userName;
     $scope.url;
     $scope.userData
-    $http.get('http://192.168.0.15:8080/user/chrome/'+$scope.userName).success(function(data) {
+    $http.get('http://localhost:8080/user/chrome/'+$scope.userName).success(function(data) {
         $scope.userData = data;
         console.log($scope.userData);
     });
@@ -127,7 +128,7 @@ snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$locatio
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.15:8080/uploadService/chrome/tags',
+        url: 'http://localhost:8080/uploadService/chrome/tags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.push($scope.enteredTag);
@@ -145,7 +146,7 @@ snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$locatio
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.15:8080/uploadService/chrome/deletetags',
+        url: 'http://localhost:8080/uploadService/chrome/deletetags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.splice(data.$index,1);
@@ -167,7 +168,7 @@ snipItControllers.controller('SearchControl', ['$scope', '$routeParams','$locati
     $scope.userData;
     $scope.search = function() {
       console.log("check");
-      $http.get('http://192.168.0.15:8080/user/'+$scope.userName+'/'+$scope.enteredTag).success(function(data) {
+      $http.get('http://localhost:8080/user/'+$scope.userName+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
           console.log($scope.userData);
       });

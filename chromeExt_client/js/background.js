@@ -47,6 +47,6 @@ function uploadFile(c) {
 
 
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://192.168.0.15:8080/uploadService/chrome/file");
+  xhr.open("POST", "http://localhost:8080/uploadService/chrome/file");
   xhr.send(formData);
 }
