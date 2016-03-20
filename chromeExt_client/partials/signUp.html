@@ -4,18 +4,17 @@
 </div>
 <div class = "body">
   <div class = "signUpContainer">
-    <form class="pure-form pure-form-stacked" ng-submit="getInFunc()">
-      <input type="text" ng-model="userName" class = "userNameInput" placeholder="{{placeHolderName}}"></input>
-      <input type="email" ng-model="email" class = "userNameInput" placeholder="{{placeHolderEmail}}"></input>
-      <input type="text" ng-model="age" class = "userAgeInput" placeholder="{{placeHolderAge}}"></input>
-      <select id="role">
-          <option value="" disabled selected>Occupation</option>
-          <option>Student</option>
-          <option>Developer</option>
-      </select>
+    <form  novalidate class=" css-form pure-form pure-form-stacked" ng-submit="getInFunc()">
+      <input type="text" ng-model="userName" class = "userNameInput" placeholder="{{placeHolderName}}"/>
+      <input type="email" ng-model="email" required email class = "userNameInput" placeholder="{{placeHolderEmail}}"/>
+      <input type="password" ng-model="userPass" required minlength = "4" class = "userNameInput" placeholder="{{placeHolderPass}}"/>
+      <input type="text" ng-model="age" required class = "userAgeInput" placeholder="{{placeHolderAge}}"/>
+      <select name="mySelect" id="role"
+      ng-options="option.name for option in data.availableOptions track by option.id"
+      ng-model="data.selectedOption"></select>
       <div style="margin: 0 auto;width: 70px;">
         <label for="remember" class="pure-checkbox sex">
-            Male <input id="option-one" type="radio" name="optionsRadios" value="option1">
+            Male <input id="option-one" type="radio" name="optionsRadios" value="option1" checked>
         </label>
         <label for="remember" class="pure-checkbox sex">
             Female <input id="option-two" type="radio" name="optionsRadios" value="option1">

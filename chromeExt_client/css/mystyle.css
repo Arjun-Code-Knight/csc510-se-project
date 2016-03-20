@@ -52,7 +52,7 @@ body
 
 .signUpContainer
 {
-	margin-top: 25%;
+	margin-top: 20%;
   position: relative;
   top: -14px;
 }
@@ -313,4 +313,17 @@ input.searchImages
 	border-left: 1px solid rgba(155, 89, 182, 1);
 	/* margin: 2px 0; */
 	top: -3px;
+}
+.pure-form input:focus:invalid {
+	color: rgb(0, 0, 0) !important;
+  border-color: #129FEA !important;
+}
+
+.css-form input.ng-invalid.ng-touched {
+	color: #b94a48;
+  border-color: #e9322d;
+}
+
+.css-form input.ng-valid.ng-touched {
+  border-color: #27ae60;
 }
