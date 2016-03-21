@@ -78,6 +78,7 @@ snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$locati
     // $scope.userName;
     // $scope.userPass;
     // $scope.email;
+    $scope.sex;
     $scope.data = {
       availableOptions: [
         {id: '1', name: 'Background'},
@@ -90,8 +91,15 @@ snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$locati
     };
 		$scope.getInFunc = function() {
 			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined) {
-          console.log($scope.userName+" "+$scope.email +" "+ $scope.userPass +" "+ $scope.age+" "+$scope.data.selectedOption.name);
-					var obj = {'un':$scope.userName};
+					var obj = {
+                      'username':$scope.userName,
+                      'email':$scope.email,
+                      'password':$scope.userPass,
+                      'age':$scope.age,
+                      'ocp':$scope.data.selectedOption.name,
+                      'sex':$scope.sex
+                    };
+          console.log(obj);
 					localStorage.setItem('snipItApp',JSON.stringify(obj));
 					userName = $scope.userName;
 					$location.url('/home');
