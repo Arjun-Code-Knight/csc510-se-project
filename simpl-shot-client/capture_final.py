@@ -88,8 +88,13 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Show History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.show_history)
         
+        self.sa_ur_share = QPushButton("Share")
+        self.connect(self.sa_ur_share, SIGNAL("clicked()"), self.show_preview)
+        
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
+        self.layout.addWidget(self.sa_ur_share,40,10,1,10)
+        self.sa_ur_share.hide()
 
         
    
@@ -106,7 +111,17 @@ class OptionsContainer(QWidget):
         print all_urls
         self.task = Thumbnail(all_urls)
         
-        
+    def show_preview(self):
+        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        all_urls = []
+        print "data returned"
+        print data_returned
+        l = literal_eval(data_returned)
+        temp=l[-1]['url']
+        temp2 = temp[0:4] + temp[5:]
+        all_urls.append(temp2)
+        self.task=Thumbnail(all_urls)
+            
     def select_area(self):
         print "select_area"
         self.main_window.showMinimized()
@@ -120,7 +135,7 @@ class OptionsContainer(QWidget):
         
         px2 = pixmap.copy(self.tw.obj)
         px2.save('temp_copy.jpg')
-                
+        self.sa_ur_share.show()        
         
 class Thumbnail(QtGui.QWidget):
 
@@ -138,10 +153,10 @@ class Thumbnail(QtGui.QWidget):
         self.scrollarea.setWidget(self.widget)
         self.layout.setAlignment(QtCore.Qt.AlignHCenter)
         
-        qbtn = QtGui.QPushButton('Quit', self)
-        qbtn.clicked.connect(self.close)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(50, 50)
+        #qbtn = QtGui.QPushButton('Quit', self)
+        #qbtn.clicked.connect(self.close)
+        #qbtn.resize(qbtn.sizeHint())
+        #qbtn.move(50, 50)
         
         for each in url:
             data = urllib2.urlopen(each).read()
@@ -163,7 +178,7 @@ class Thumbnail(QtGui.QWidget):
             self.layout.addWidget(lbl)
             self.layout.addWidget(url_disp)
         self.setGeometry(200, 200, 400, 400)
-        self.setWindowTitle('Snippet Tool')
+        self.setWindowTitle('Simple-Shot')
         self.show()
 
         
@@ -194,12 +209,19 @@ class Form(QDialog):
         self.pb.setObjectName("login")
         self.pb.setText("Log In!") 
 
+        self.nu = QPushButton()
+        self.nu.setObjectName("new user")
+        self.nu.setText("New user!")
+        
         layout = QFormLayout()
         layout.addWidget(self.le)
         layout.addWidget(self.pb)
+        
+        layout.addWidget(self.nu)
 
         self.setLayout(layout)
         self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.connect(self.nu, SIGNAL("clicked()"),self.signup_form)
         self.setWindowTitle("Snippet Tool")
 
     def button_click(self):
@@ -209,6 +231,12 @@ class Form(QDialog):
         window = MainWindow(usrnm)
         window.show()
 
+    def signup_form(self):
+        usrnm = self.le.text()
+        self.close()
+        print "Logged in as: ",usrnm
+        window = MainWindow(usrnm)
+        window.show()
 
 if __name__ == '__main__':
     global app
