@@ -197,6 +197,70 @@ class MainWindow(QMainWindow):
         if event.key() == Qt.Key_Q:
             sys.exit()
     '''
+class DataForm(QDialog):
+    def __init__(self, parent):
+        super(DataForm, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Data Agreement Form\n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+        self.setLayout(layout)
+    
+class SignUp_Form(QDialog):
+    def __init__(self, parent):
+        super(SignUp_Form, self).__init__(parent)
+        self.usnname = QLineEdit()
+        self.usnname.setObjectName("username")
+        self.usnname.setText("UserName")
+        self.passwd = QLineEdit()
+        self.passwd.setObjectName("password")
+        self.passwd.setText("Password")
+        self.em = QLineEdit()
+        self.em.setObjectName("Email")
+        self.em.setText("email")
+        self.age = QLineEdit()
+        self.age.setObjectName("age")
+        self.age.setText("Age")
+        self.sex = QLineEdit()
+        self.sex.setObjectName("Sex")
+        self.sex.setText("sex")
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        self.occ=QComboBox()
+        self.occ.addItem("Student")
+        self.occ.addItem("Employed")
+        print self.occ.currentText()
+        layout = QFormLayout()
+        layout.addWidget(self.usnname)
+        layout.addWidget(self.passwd)
+        layout.addWidget(self.em)
+        layout.addWidget(self.age)
+        layout.addWidget(self.sex)
+        layout.addWidget(self.occ)
+        layout.addWidget(self.nu)
+        
+        self.setLayout(layout)
+        
+    def button_click(self):
+            usrnm = self.usnname.text()
+            passwd = self.passwd.text()
+            email = self.em.text()
+            age = self.age.text()
+            sex = self.sex.text()
+            occ = self.occ.currentText()
+            dict={}
+            dict['username']=usrnm
+            dict['password']=passwd
+            dict['email']=email
+            dict['age']=age
+            dict['sex']=sex
+            dict['occupation']=occ
+            #print dict
+            window = DataForm(self)
+            window.show()
+            
 class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
@@ -232,10 +296,10 @@ class Form(QDialog):
         window.show()
 
     def signup_form(self):
-        usrnm = self.le.text()
+        #usrnm = self.le.text()
         self.close()
-        print "Logged in as: ",usrnm
-        window = MainWindow(usrnm)
+        #print "Logged in as: ",usrnm
+        window = SignUp_Form(self)
         window.show()
 
 if __name__ == '__main__':
