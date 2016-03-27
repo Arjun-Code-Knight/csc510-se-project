@@ -3,12 +3,17 @@
   <header-detail></header-detail>
 </div>
 <div class = "body">
-  <div class = "inputContainer">
+  <div class = "inputContainer ic1">
     <form ng-submit="search()">
       <input class = "tagInput" placeHolder = "{{enterTags}}" ng-model = "enteredTag"/>
+      <div class = "crossSearch">
+        <label class="pure-checkbox">CrossSearch:
+          <input type="checkbox" ng-model="crossSearch">
+        </label>
+      </div>
     </form>
   </div>
-  <div class = "imageGridContainer1">
+  <div class = "imageGridContainer1 ig1">
     <div class="pure-u-1-2" ng-repeat="x in userData">
       <img class = "userImages" ng-src = {{x.url}} ng-click="expandImage(this)" />
     </div>

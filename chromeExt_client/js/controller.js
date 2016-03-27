@@ -283,8 +283,16 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
     $scope.email = email;
     $scope.enteredTag;
     $scope.userData;
+    $scope.crossSearch;
     $scope.search = function() {
-      $http.get('http://localhost:8080/user/search/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
+      console.log($scope.crossSearch);
+      var searchType;
+      if($scope.crossSearch) {
+        searchType = "crosssearch";
+      } else {
+        searchType = "search";
+      }
+      $http.get('http://localhost:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
       });
     }
