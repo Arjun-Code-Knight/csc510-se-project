@@ -18,6 +18,10 @@ snipItApp.config(['$routeProvider',
         templateUrl: 'partials/signUp.html',
         controller: 'SignUpControl'
       }).
+      when('/login', {
+        templateUrl: 'partials/login.html',
+        controller: 'LogInControl'
+      }).
       when('/home', {
         templateUrl: 'partials/home.html',
         controller: 'HomeControl'

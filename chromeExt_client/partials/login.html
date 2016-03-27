@@ -1,0 +1,12 @@
+<div class = "header">
+  <div class = "title">{{title}}</div>
+</div>
+<div class = "body">
+  <div class = "signUpContainer">
+    <form  novalidate class=" css-form pure-form pure-form-stacked" ng-submit="logInFunc()">
+      <input type="email" ng-model="email" required email class = "userNameInput" placeholder="{{placeHolderEmail}}"/>
+      <input type="password" ng-model="userPass" required minlength = "4" class = "userNameInput" placeholder="{{placeHolderPass}}"/>
+      <input class="button-large pure-button pure-button-primary userNameSubmit" type="submit" value="{{logIn}}">
+    </form>
+  </div>
+</div>

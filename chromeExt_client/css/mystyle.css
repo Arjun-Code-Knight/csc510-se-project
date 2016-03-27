@@ -23,6 +23,52 @@ body
   font-size: 20px;
   line-height: 50px;
 	border-bottom: 5px solid #3498db;
+	z-index: 1;
+}
+
+.navBarMenu {
+	display: inline-block;
+}
+.userName:hover .menuWrapper {
+	display: block;
+}
+.menuWrapper {
+	list-style-type: none;
+	margin: 0;
+	display: none;
+	background: #fff;
+  border-radius: 2px;
+  border: 1px solid #d3d3d3;
+	padding: 2px;
+	position: relative;
+	top: 0px;
+	left: 5px;
+	cursor: pointer;
+	width: 120px;
+}
+.menuWrapper::before {
+	content: '';
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+  position: absolute;
+  left: 90px;
+  top: -10px;
+}
+
+.menuList {
+	color: #888;
+	height: 25px;
+	line-height: 25px;
+	padding: 2px 4px;
+}
+.menuList:hover {
+	background: rgba(0, 0, 0, 0.1);
+}
+.menuList:nth-child(1) {
+	border-bottom: 1px solid #e5e5e5;
 }
 .title
 {
@@ -31,7 +77,6 @@ body
 }
 .userName
 {
-	width: 100px;
 	display: inline-block;
 	position: absolute;
 	right: 0;
@@ -174,7 +219,7 @@ input.searchImages
 
 .userImages {
 	padding: 5px;
-	height: 130px;
+	max-height: 150px;
 	max-width: 130px;
 	margin: auto;
 	position: relative;
@@ -326,4 +371,23 @@ input.searchImages
 
 .css-form input.ng-valid.ng-touched {
   border-color: #27ae60;
+}
+
+.button-warning {
+	color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-decoration: none;
+  border-radius: 0;
+  outline: none;
+  border: 1px solid #8e44ad;
+  background: #9b59b6;
+  height: 25px;
+  width: 60px;
+  line-height: 13px;
+  position: absolute;
+  top: 13px;
+  right: 15px;
 }
