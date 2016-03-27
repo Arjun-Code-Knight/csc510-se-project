@@ -88,8 +88,13 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Show History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.show_history)
         
+        self.sa_ur_share = QPushButton("Share")
+        self.connect(self.sa_ur_share, SIGNAL("clicked()"), self.show_preview)
+        
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
+        self.layout.addWidget(self.sa_ur_share,40,10,1,10)
+        self.sa_ur_share.hide()
 
         
    
@@ -106,7 +111,17 @@ class OptionsContainer(QWidget):
         print all_urls
         self.task = Thumbnail(all_urls)
         
-        
+    def show_preview(self):
+        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        all_urls = []
+        print "data returned"
+        print data_returned
+        l = literal_eval(data_returned)
+        temp=l[-1]['url']
+        temp2 = temp[0:4] + temp[5:]
+        all_urls.append(temp2)
+        self.task=Thumbnail(all_urls)
+            
     def select_area(self):
         print "select_area"
         self.main_window.showMinimized()
@@ -120,7 +135,7 @@ class OptionsContainer(QWidget):
         
         px2 = pixmap.copy(self.tw.obj)
         px2.save('temp_copy.jpg')
-                
+        self.sa_ur_share.show()        
         
 class Thumbnail(QtGui.QWidget):
 
@@ -138,10 +153,10 @@ class Thumbnail(QtGui.QWidget):
         self.scrollarea.setWidget(self.widget)
         self.layout.setAlignment(QtCore.Qt.AlignHCenter)
         
-        qbtn = QtGui.QPushButton('Quit', self)
-        qbtn.clicked.connect(self.close)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(50, 50)
+        #qbtn = QtGui.QPushButton('Quit', self)
+        #qbtn.clicked.connect(self.close)
+        #qbtn.resize(qbtn.sizeHint())
+        #qbtn.move(50, 50)
         
         for each in url:
             data = urllib2.urlopen(each).read()
@@ -163,7 +178,7 @@ class Thumbnail(QtGui.QWidget):
             self.layout.addWidget(lbl)
             self.layout.addWidget(url_disp)
         self.setGeometry(200, 200, 400, 400)
-        self.setWindowTitle('Snippet Tool')
+        self.setWindowTitle('Simple-Shot')
         self.show()
 
         
@@ -182,6 +197,70 @@ class MainWindow(QMainWindow):
         if event.key() == Qt.Key_Q:
             sys.exit()
     '''
+class DataForm(QDialog):
+    def __init__(self, parent):
+        super(DataForm, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Data Agreement Form\n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+        self.setLayout(layout)
+    
+class SignUp_Form(QDialog):
+    def __init__(self, parent):
+        super(SignUp_Form, self).__init__(parent)
+        self.usnname = QLineEdit()
+        self.usnname.setObjectName("username")
+        self.usnname.setText("UserName")
+        self.passwd = QLineEdit()
+        self.passwd.setObjectName("password")
+        self.passwd.setText("Password")
+        self.em = QLineEdit()
+        self.em.setObjectName("Email")
+        self.em.setText("email")
+        self.age = QLineEdit()
+        self.age.setObjectName("age")
+        self.age.setText("Age")
+        self.sex = QLineEdit()
+        self.sex.setObjectName("Sex")
+        self.sex.setText("sex")
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        self.occ=QComboBox()
+        self.occ.addItem("Student")
+        self.occ.addItem("Employed")
+        print self.occ.currentText()
+        layout = QFormLayout()
+        layout.addWidget(self.usnname)
+        layout.addWidget(self.passwd)
+        layout.addWidget(self.em)
+        layout.addWidget(self.age)
+        layout.addWidget(self.sex)
+        layout.addWidget(self.occ)
+        layout.addWidget(self.nu)
+        
+        self.setLayout(layout)
+        
+    def button_click(self):
+            usrnm = self.usnname.text()
+            passwd = self.passwd.text()
+            email = self.em.text()
+            age = self.age.text()
+            sex = self.sex.text()
+            occ = self.occ.currentText()
+            dict={}
+            dict['username']=usrnm
+            dict['password']=passwd
+            dict['email']=email
+            dict['age']=age
+            dict['sex']=sex
+            dict['occupation']=occ
+            #print dict
+            window = DataForm(self)
+            window.show()
+            
 class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
@@ -194,12 +273,19 @@ class Form(QDialog):
         self.pb.setObjectName("login")
         self.pb.setText("Log In!") 
 
+        self.nu = QPushButton()
+        self.nu.setObjectName("new user")
+        self.nu.setText("New user!")
+        
         layout = QFormLayout()
         layout.addWidget(self.le)
         layout.addWidget(self.pb)
+        
+        layout.addWidget(self.nu)
 
         self.setLayout(layout)
         self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.connect(self.nu, SIGNAL("clicked()"),self.signup_form)
         self.setWindowTitle("Snippet Tool")
 
     def button_click(self):
@@ -209,6 +295,12 @@ class Form(QDialog):
         window = MainWindow(usrnm)
         window.show()
 
+    def signup_form(self):
+        #usrnm = self.le.text()
+        self.close()
+        #print "Logged in as: ",usrnm
+        window = SignUp_Form(self)
+        window.show()
 
 if __name__ == '__main__':
     global app

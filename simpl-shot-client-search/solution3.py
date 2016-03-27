@@ -122,7 +122,7 @@ class SearchTab(QtGui.QWidget):
         self.qbtn.move(30, 30)
         self.layout.addWidget(self.qbtn)
         self.setGeometry(200, 200, 200, 200)
-        self.setWindowTitle('Snippet Tool History')
+        self.setWindowTitle('Simple-Shot History')
         self.show()
 
     def search_results(self):
@@ -154,10 +154,10 @@ class Thumbnail(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout(self.widget)
         self.scrollarea.setWidget(self.widget)
         self.layout.setAlignment(QtCore.Qt.AlignHCenter)
-        qbtn = QtGui.QPushButton('Quit', self)
-        qbtn.clicked.connect(self.close)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(20, 20)
+        #qbtn = QtGui.QPushButton('Quit', self)
+        #qbtn.clicked.connect(self.close)
+        #qbtn.resize(qbtn.sizeHint())
+        #qbtn.move(20, 20)
         for each in url:
             data = urllib2.urlopen(each).read()
             image = QtGui.QImage()
@@ -171,7 +171,7 @@ class Thumbnail(QtGui.QWidget):
             self.layout.addWidget(lbl)
             self.layout.addWidget(url_disp)
         self.setGeometry(200, 200, 400, 400)
-        self.setWindowTitle('Snippet Tool History')
+        self.setWindowTitle('Simple-Shot')
         self.show()
         print "Thumbnail displayed"
         
