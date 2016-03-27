@@ -186,7 +186,6 @@ public class MongoUtil {
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
-		queryUser.put("solutionType", solutionType);
 		queryUser.put("url", new Document().append("$exists", true));
 		queryUser.put("private", "false");
 		queryUser.put("tags", new Document().append("$regex", ".*"+searchParam+".*").append("$options", "i"));
