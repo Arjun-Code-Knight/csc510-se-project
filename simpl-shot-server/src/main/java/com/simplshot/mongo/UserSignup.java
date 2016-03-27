@@ -26,11 +26,11 @@ public class UserSignup {
 	public void setAge(int age) {
 		this.age = age;
 	}
-	public String getOccpation() {
-		return occpation;
+	public String getOccupation() {
+		return occupation;
 	}
-	public void setOccpation(String occpation) {
-		this.occpation = occpation;
+	public void setOccupation(String occupation) {
+		this.occupation = occupation;
 	}
 	public String getSex() {
 		return sex;
@@ -42,7 +42,7 @@ public class UserSignup {
 	private String email;
 	private String password;
 	private int age;
-	private String occpation;
+	private String occupation;
 	private String sex;
 	private String userName;
 }

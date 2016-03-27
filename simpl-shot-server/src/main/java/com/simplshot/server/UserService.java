@@ -213,9 +213,9 @@ public class UserService {
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ResponseStatus status = new ResponseStatus();
-		status.setReason("Succesfully Signed-up!");
+		status.setReason("Succesfully Logged-in!");
 		status.setSuccess("Yes");
-		return Response.status(200).entity(mapper.writeValueAsString(status)).build();
+		return Response.status(SUCCESS).entity(mapper.writeValueAsString(status)).build();
 	}
 	
 	/**
@@ -230,7 +230,7 @@ public class UserService {
 		ResponseStatus status = new ResponseStatus();
 		status.setReason(reason);
 		status.setSuccess("No");
-		return Response.status(ERROR).entity(mapper.writeValueAsString(status)).build();
+		return Response.status(SUCCESS).entity(mapper.writeValueAsString(status)).build();
 	}
 	
 }

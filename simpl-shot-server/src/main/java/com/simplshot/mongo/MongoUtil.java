@@ -273,7 +273,7 @@ public class MongoUtil {
 		user.put("password", signUpDetails.getPassword());
 		user.put("age", signUpDetails.getAge());
 		user.put("email", signUpDetails.getEmail());
-		user.put("occupation", signUpDetails.getOccpation());
+		user.put("occupation", signUpDetails.getOccupation());
 		user.put("sex", signUpDetails.getSex());
 		if(checkIfEmailExists(signUpDetails.getEmail())) return false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -470,13 +470,13 @@ public class MongoUtil {
 		//MongoUtil.getInstance().createUser("Testuser");
 		//MongoUtil.getInstance().checkIfUserExists("Testuser");
 		ObjectId _id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1","YES");
+		//MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1","YES");
 		_id = new ObjectId();
 		//MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:2","tag2");
 		_id = new ObjectId();
 		//MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:3","tag3");
-		MongoUtil.getInstance().getUserDetails("TESTUSER1","SOLUTION1");
-		MongoUtil.getInstance().getUsageStatistics();
+		//MongoUtil.getInstance().getUserDetails("TESTUSER1","SOLUTION1");
+		//MongoUtil.getInstance().getUsageStatistics();
 		//MongoUtil.getInstance().dropDatabase();
 	}
 	
