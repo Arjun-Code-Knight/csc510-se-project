@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.util.JSON;
 import com.simplshot.mongo.Login;
 import com.simplshot.mongo.MongoUtil;
 import com.simplshot.mongo.ResponseStatus;
@@ -216,6 +217,7 @@ public class UserService {
 		status.setReason("Succesfully Logged-in!");
 		status.setSuccess("Yes");
 		status.setUser(userName);
+		LOGGER.info("Response --"+JSON.serialize(status.toString()));
 		return Response.status(SUCCESS).entity(mapper.writeValueAsString(status)).build();
 	}
 	
@@ -231,6 +233,7 @@ public class UserService {
 		ResponseStatus status = new ResponseStatus();
 		status.setReason(reason);
 		status.setSuccess("No");
+		LOGGER.info("Response --"+JSON.serialize(status.toString()));
 		return Response.status(SUCCESS).entity(mapper.writeValueAsString(status)).build();
 	}
 	

@@ -48,7 +48,7 @@ public class FileServer {
 	@Path("file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("EMAIL") String emailId, @FormDataParam("PRIVATE") String privateData)
+	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("email") String emailId, @FormDataParam("private") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
 		String userName = MongoUtil.getInstance().getUserName(emailId);
@@ -79,7 +79,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,extracts,privateData);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,extracts,privateData);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -91,7 +91,7 @@ public class FileServer {
 	@Path("/chrome/file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("EMAIL") String emailId, @FormDataParam("PRIVATE") String privateData)
+	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("email") String emailId, @FormDataParam("private") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
 		String userName = MongoUtil.getInstance().getUserName(emailId);
@@ -113,7 +113,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,"",privateData);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,"",privateData);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{

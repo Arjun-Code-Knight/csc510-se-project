@@ -1,5 +1,8 @@
 package com.simplshot.mongo;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class ResponseStatus {
 	private String user;	
 	private String success;
@@ -23,4 +26,18 @@ public class ResponseStatus {
 	public void setUser(String user) {
 		this.user = user;
 	}
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		ObjectMapper mapper = new ObjectMapper(); 
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return super.toString();
+	}
+	
 }
