@@ -149,7 +149,7 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserdetailsForChromeWithParam(@PathParam("userId") String userId,@PathParam("search") String searchparam)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION3);
+		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION2);
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
