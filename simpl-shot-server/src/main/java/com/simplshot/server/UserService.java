@@ -38,8 +38,8 @@ public class UserService {
 	@Produces(MediaType.TEXT_HTML)
 	public Response getUserdetails()
 	{
-		LOGGER.info("Please pass userid and user/{userid} path");
-		return Response.status(200).entity("Please pass userid and user/{id} path").build();
+		LOGGER.info("Please pass userid and user/{emailId} path");
+		return Response.status(200).entity("Please pass emailId and user/{emailId} path").build();
 		
 	}
 	
@@ -59,7 +59,7 @@ public class UserService {
 		System.out.println("Json request "+signUpRequest);
 		try {
 			UserSignup userSignUp = mapper.readValue(signUpRequest, UserSignup.class);
-			return MongoUtil.getInstance().createUser(userSignUp)==true?generateSuccessResponse():generateErrorResponse("Email id exists");
+			return MongoUtil.getInstance().createUser(userSignUp)==true?generateSuccessResponse(userSignUp.getUserName()):generateErrorResponse("Email id exists");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,7 +84,7 @@ public class UserService {
 		System.out.println("Json request "+loginRequest);
 		try {
 			Login userLogin = mapper.readValue(loginRequest, Login.class);
-			return MongoUtil.getInstance().performUserLogin(userLogin)==true?generateSuccessResponse():generateErrorResponse("Wrong credentials");
+			return MongoUtil.getInstance().performUserLogin(userLogin)==true?generateSuccessResponse(MongoUtil.getInstance().getUserName(userLogin.getEmail())):generateErrorResponse("Wrong credentials");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,11 +97,11 @@ public class UserService {
 	*/
 	@GET	
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/search/{userId}")
-	public Response getUserdetails(@PathParam("userId") String userId)
+	@Path("/search/{emailId}")
+	public Response getUserdetails(@PathParam("emailId") String emailId)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,SOLUTION1);
-		LOGGER.info("The user Id is "+userId);
+		String responseFromMongo = mongoUtil.getUserDetails(emailId,SOLUTION1);
+		LOGGER.info("The emailId is "+emailId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
 	}
@@ -112,12 +112,12 @@ public class UserService {
 	 * @return
 	 */
 	@GET	
-	@Path("/search/chrome/{userId}")
+	@Path("/search/chrome/{emailId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserdetailsForChrome(@PathParam("userId") String userId)
+	public Response getUserdetailsForChrome(@PathParam("emailId") String emailId)
 	{
-		String responseFromMongo = mongoUtil.getUserDetailsForChrome(userId,SOLUTION2);
-		LOGGER.info("The user Id is "+userId);
+		String responseFromMongo = mongoUtil.getUserDetailsForChrome(emailId,SOLUTION2);
+		LOGGER.info("The user Id is "+emailId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 		
 	}
@@ -129,12 +129,12 @@ public class UserService {
 	 * @return
 	 */
 	@GET	
-	@Path("/search/{userId}/{search}")
+	@Path("/search/{emailId}/{search}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserdetails(@PathParam("userId") String userId,@PathParam("search") String searchparam)
+	public Response getUserdetails(@PathParam("emailId") String emailId,@PathParam("search") String searchparam)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION3);
-		LOGGER.info("The user Id is "+userId);
+		String responseFromMongo = mongoUtil.getUserDetails(emailId,searchparam,SOLUTION3);
+		LOGGER.info("The emailId is "+emailId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
 	
@@ -145,12 +145,12 @@ public class UserService {
 	 * @return
 	 */
 	@GET	
-	@Path("/search/chrome/{userId}/{search}")
+	@Path("/search/chrome/{emailId}/{search}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserdetailsForChromeWithParam(@PathParam("userId") String userId,@PathParam("search") String searchparam)
+	public Response getUserdetailsForChromeWithParam(@PathParam("emailId") String emailId,@PathParam("search") String searchparam)
 	{
-		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION2);
-		LOGGER.info("The user Id is "+userId);
+		String responseFromMongo = mongoUtil.getUserDetails(emailId,searchparam,SOLUTION2);
+		LOGGER.info("The emailId is "+emailId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
 	
@@ -162,11 +162,11 @@ public class UserService {
 	 * @return
 	 */
 	@GET	
-	@Path("/crosssearch/{userId}/{search}")
+	@Path("/crosssearch/{emailId}/{search}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response searchAcrossUsers(@PathParam("userId") String userId,@PathParam("search") String searchParam)
+	public Response searchAcrossUsers(@PathParam("emailId") String emailId,@PathParam("search") String searchParam)
 	{
-		String responseFromMongo = mongoUtil.searchAcrossUsers(userId,searchParam,SOLUTION3);
+		String responseFromMongo = mongoUtil.searchAcrossUsers(emailId,searchParam,SOLUTION3);
 		LOGGER.info("Get usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
@@ -178,11 +178,11 @@ public class UserService {
 	 * @return
 	 */
 	@GET	
-	@Path("/crosssearch/chrome/{userId}/{search}")
+	@Path("/crosssearch/chrome/{emailId}/{search}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response searchAcrossUsersForChrome(@PathParam("userId") String userId,@PathParam("search") String searchParam)
+	public Response searchAcrossUsersForChrome(@PathParam("emailId") String emailId,@PathParam("search") String searchParam)
 	{
-		String responseFromMongo = mongoUtil.searchAcrossUsers(userId,searchParam,SOLUTION2);
+		String responseFromMongo = mongoUtil.searchAcrossUsers(emailId,searchParam,SOLUTION2);
 		LOGGER.info("Get usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
@@ -190,31 +190,32 @@ public class UserService {
 	
 	/**
 	 * get user satisfaction
-	 * @param userId
+	 * @param emailId
 	 * @param searchparam
 	 * @return
 	 * @throws JsonProcessingException 
 	 */
 	@GET	
-	@Path("/usersatisfaction/{userId}/{rating}/{comments}/{solutionType}")
+	@Path("/usersatisfaction/{emailId}/{rating}/{comments}/{solutionType}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getUserdetails(@PathParam("userId") String userId,@PathParam("rating") String rating, @PathParam("comments") String comments,@PathParam("solutionType") String solutionType) throws JsonProcessingException
+	public Response getUserdetails(@PathParam("emailId") String emailId,@PathParam("rating") String rating, @PathParam("comments") String comments,@PathParam("solutionType") String solutionType) throws JsonProcessingException
 	{
-		LOGGER.info("The user Id is "+userId);
-		return mongoUtil.updateTelemetryUserSatisfaction(userId,rating,comments,solutionType)==true?generateSuccessResponse():generateErrorResponse("Error updating");
+		LOGGER.info("The emailId is "+emailId);
+		return mongoUtil.updateTelemetryUserSatisfaction(emailId,rating,comments,solutionType)==true?generateSuccessResponse(MongoUtil.getInstance().getUserName(emailId)):generateErrorResponse("Error updating");
 	}
 	
 	/**
 	 * @return
 	 * @throws JsonProcessingException
 	 */
-	public static Response generateSuccessResponse() throws JsonProcessingException
+	public static Response generateSuccessResponse(String userName) throws JsonProcessingException
 	{
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ResponseStatus status = new ResponseStatus();
 		status.setReason("Succesfully Logged-in!");
 		status.setSuccess("Yes");
+		status.setUser(userName);
 		return Response.status(SUCCESS).entity(mapper.writeValueAsString(status)).build();
 	}
 	

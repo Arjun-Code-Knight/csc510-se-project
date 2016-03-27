@@ -230,6 +230,33 @@ public class MongoUtil {
 		}
 		return false;
 	}
+	
+	/**
+	 * 
+	 * @param getUserName
+	 * @return
+	 */
+	public String getUserName(String emailId)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("email", emailId);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Document response = cur.first();
+			if(response != null){
+				LOGGER.info("Checking User with UserID Exists"+response.toJson());
+				return response.getString("name");
+			}
+		}catch(MongoException ex)
+		{
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return "DEFAULT";
+	}
 
 	
 	/**

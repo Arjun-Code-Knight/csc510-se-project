@@ -48,9 +48,10 @@ public class FileServer {
 	@Path("file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName, @FormDataParam("PRIVATE") String privateData)
+	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("EMAIL") String emailId, @FormDataParam("PRIVATE") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
+		String userName = MongoUtil.getInstance().getUserName(emailId);
 		strBuffer.append(userName+"\\");
 		File userDirectory = new File(strBuffer.toString());
 		if(!userDirectory.exists())
@@ -90,9 +91,10 @@ public class FileServer {
 	@Path("/chrome/file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName, @FormDataParam("PRIVATE") String privateData)
+	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("EMAIL") String emailId, @FormDataParam("PRIVATE") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
+		String userName = MongoUtil.getInstance().getUserName(emailId);
 		strBuffer.append(userName+"\\");
 		File userDirectory = new File(strBuffer.toString());
 		if(!userDirectory.exists())
