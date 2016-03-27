@@ -1,4 +1,4 @@
-var imgUrl, userEmail;
+var imgUrl, userEmail, picType;
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     if (request.name == 'screenshot') {
     	captureTab(sendResponse);
@@ -11,6 +11,9 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     }
     else if(request.name == "currentUser") {
         userEmail = request.data;
+    }
+    else if(request.name == "picType") {
+        picType = request.data;
     }
     return true;
 });
@@ -41,7 +44,7 @@ function uploadFile(c) {
 
   //console.log(c);
   formData.append("email", userEmail);
-  formData.append("private", "true");
+  formData.append("private", picType);
   formData.append("attachment", dataUrl1);
 
   var xhr = new XMLHttpRequest();
