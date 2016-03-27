@@ -216,6 +216,9 @@ input.searchImages
 	font-size: 0;
 	height: calc(100% - 40px);
 }
+.ig1{
+	height: calc(100% - 60px);
+}
 
 .userImages {
 	padding: 5px;
@@ -227,7 +230,9 @@ input.searchImages
 }
 .inputContainer {
 	height: 40px;
-
+}
+.ic1 {
+	height: 60px;
 }
 .tagInput {
 	position: absolute;
@@ -450,4 +455,9 @@ input.searchImages
 	left: -100px;
 	font-size: 120% !important;
 	width: 200px;
+}
+.crossSearch {
+	position: absolute;
+  right: 5px;
+  top: 40px;
 }
