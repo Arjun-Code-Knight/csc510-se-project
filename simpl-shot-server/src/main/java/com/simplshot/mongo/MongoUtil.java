@@ -212,7 +212,7 @@ public class MongoUtil {
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
-		queryUser.put("name", userLogin.getUserName());
+		queryUser.put("email", userLogin.getEmail());
 		queryUser.put("password", userLogin.getPassword());
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{
@@ -230,6 +230,35 @@ public class MongoUtil {
 		}
 		return false;
 	}
+
+	
+	/**
+	 * 
+	 * @param check if user exists
+	 * @return
+	 */
+	public boolean checkIfEmailExists(String email)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("email", email);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Document response = cur.first();
+			if(response != null){
+				LOGGER.info("Checking User with UserID Exists"+response.toJson());
+				return true;
+			}
+		}catch(MongoException ex)
+		{
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Sign up 
@@ -246,6 +275,7 @@ public class MongoUtil {
 		user.put("email", signUpDetails.getEmail());
 		user.put("occupation", signUpDetails.getOccpation());
 		user.put("sex", signUpDetails.getSex());
+		if(checkIfEmailExists(signUpDetails.getEmail())) return false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{

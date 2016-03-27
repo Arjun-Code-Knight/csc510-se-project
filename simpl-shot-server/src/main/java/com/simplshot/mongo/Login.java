@@ -2,12 +2,6 @@ package com.simplshot.mongo;
 
 public class Login {
 
-	public String getUserName() {
-		return userName;
-	}
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
 	public String getPassword() {
 		return password;
 	}
@@ -15,6 +9,13 @@ public class Login {
 		this.password = password;
 	}
 	
-	private String userName;
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	private String email;
 	private String password;
 }

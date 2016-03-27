@@ -59,7 +59,7 @@ public class UserService {
 		System.out.println("Json request "+signUpRequest);
 		try {
 			UserSignup userSignUp = mapper.readValue(signUpRequest, UserSignup.class);
-			return MongoUtil.getInstance().createUser(userSignUp)==true?generateSuccessResponse():generateErrorResponse("Incorrect request");
+			return MongoUtil.getInstance().createUser(userSignUp)==true?generateSuccessResponse():generateErrorResponse("Email id exists");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
