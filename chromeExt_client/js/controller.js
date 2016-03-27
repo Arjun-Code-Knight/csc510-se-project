@@ -118,7 +118,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
 					userName = $scope.userName;
           $http({
             method: 'POST',
-            url: 'http://192.168.0.15:8080/user/signup/',
+            url: 'http://localhost:8080/user/signup/',
             data: obj
           }).then(function successCallback(response) {
             delete obj.age;
@@ -157,7 +157,7 @@ app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
                     };
           $http({
             method: 'POST',
-            url: 'http://192.168.0.15:8080/user/login/',
+            url: 'http://localhost:8080/user/login/',
             data: obj
           }).then(function successCallback(response) {
             if(response.data.success == "Yes") {
@@ -187,7 +187,7 @@ app.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
     $scope.email = email;
     $scope.url;
     $scope.userData
-    $http.get('http://192.168.0.15:8080/user/search/chrome/'+$scope.email).success(function(data) {
+    $http.get('http://localhost:8080/user/search/chrome/'+$scope.email).success(function(data) {
         $scope.userData = data;
     });
 
@@ -220,7 +220,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.15:8080/uploadService/chrome/tags',
+        url: 'http://localhost:8080/uploadService/chrome/tags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.push($scope.enteredTag);
@@ -237,7 +237,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.15:8080/uploadService/chrome/deletetags',
+        url: 'http://localhost:8080/uploadService/chrome/deletetags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.splice(data.$index,1);
@@ -259,7 +259,7 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
     $scope.enteredTag;
     $scope.userData;
     $scope.search = function() {
-      $http.get('http://192.168.0.15:8080/user/search/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
+      $http.get('http://localhost:8080/user/search/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
       });
     }
