@@ -137,6 +137,23 @@ public class UserService {
 		LOGGER.info("The user Id is "+userId);
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
+	
+	/**
+	 * get user details and links for desktop as it involves searching by search param where data extracted by tesseract
+	 * @param userId
+	 * @param searchparam
+	 * @return
+	 */
+	@GET	
+	@Path("/search/chrome/{userId}/{search}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserdetailsForChromeWithParam(@PathParam("userId") String userId,@PathParam("search") String searchparam)
+	{
+		String responseFromMongo = mongoUtil.getUserDetails(userId,searchparam,SOLUTION3);
+		LOGGER.info("The user Id is "+userId);
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
 
 	/**
 	 * Cross search
