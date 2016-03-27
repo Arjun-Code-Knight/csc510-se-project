@@ -38,8 +38,7 @@ app.controller('HomeControl', ['$scope', '$routeParams','$location',
     });
 
 		$scope.snipItFunc = function() {
-      window.close();
-      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+      $location.url('/snapshot');
 		}
 
 		$scope.showHistoryFunc = function() {
@@ -62,6 +61,28 @@ app.controller('HomeControl', ['$scope', '$routeParams','$location',
 		// 	// });
 		// });
 	}
+]);
+
+app.controller('SnapShotControl', ['$scope', '$routeParams','$location',
+	function($scope, $routeParams, $location) {
+    $scope.takePrivate = "Capture private screenshot";
+    $scope.takePublic = "Capture public screenshot";
+    $scope.publicFunc = function() {
+      chrome.extension.sendMessage({name: "picType", data: "false"}, function(){
+        console.log("pictype passed");
+      });
+      window.close();
+      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+    }
+    $scope.privateFunc = function() {
+      chrome.extension.sendMessage({name: "picType", data: "true"}, function(){
+        console.log("pictype passed");
+      });
+      window.close();
+      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+    }
+
+  }
 ]);
 
 app.directive('headerDetail', function ($location) {
@@ -213,6 +234,10 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       }
     }
     $scope.imageSrc = currImage;
+    $scope.copy = function() {
+      document.getElementsByClassName("imageUrlInput")[0].select();
+      document.execCommand("copy");
+    }
     $scope.addTag = function() {
       var formData = {
         fileName : currImage,

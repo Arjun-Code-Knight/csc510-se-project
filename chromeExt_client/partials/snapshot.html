@@ -1,0 +1,14 @@
+<div class = "header">
+  <div class = "title">{{title}}</div>
+  <header-detail></header-detail>
+</div>
+<div class = "body">
+  <div class = "signUpContainer">
+      <form class="pure-form pure-form-stacked" ng-submit="privateFunc()">
+        <input class="button-large pure-button pure-button-primary private" type="submit" value="{{takePrivate}}">
+      </form>
+      <form class="pure-form pure-form-stacked" ng-submit="publicFunc()">
+        <input class="button-large pure-button pure-button-primary public" type="submit" value="{{takePublic}}">
+      </form>
+  </div>
+</div>

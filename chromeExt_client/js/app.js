@@ -38,6 +38,10 @@ snipItApp.config(['$routeProvider',
         templateUrl: 'partials/search.html',
         controller: 'SearchControl'
       }).
+      when('/snapshot', {
+        templateUrl: 'partials/snapshot.html',
+        controller: 'SnapShotControl'
+      }).
       otherwise({
         templateUrl: 'partials/snipIt.html',
         controller: 'SnipItControl'
