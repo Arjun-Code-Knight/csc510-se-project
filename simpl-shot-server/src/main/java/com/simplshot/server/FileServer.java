@@ -48,7 +48,7 @@ public class FileServer {
 	@Path("file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName)
+	public Response uploadFile(@FormDataParam("attachment") InputStream fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName, @FormDataParam("PRIVATE") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
 		strBuffer.append(userName+"\\");
@@ -78,7 +78,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,extracts);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,extracts,privateData);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -90,7 +90,7 @@ public class FileServer {
 	@Path("/chrome/file")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName)
+	public Response uploadFileFromChrome(@FormDataParam("attachment") String fileInputStream,@FormDataParam("attachment") FormDataContentDisposition contentDispositionHeader, @FormDataParam("USER") String userName, @FormDataParam("PRIVATE") String privateData)
 	{
 		File directory = new File(AppStart.UPLOAD_DIR);
 		strBuffer.append(userName+"\\");
@@ -111,7 +111,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,"");/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,userName,awsFileUrl,"",privateData);/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{

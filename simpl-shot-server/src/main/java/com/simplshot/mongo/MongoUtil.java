@@ -50,7 +50,7 @@ public class MongoUtil {
 		initilaized = true;
 	}
 	
-	public boolean addLinkToUser(ObjectId _id, String userId, String link, String ocrWords){
+	public boolean addLinkToUser(ObjectId _id, String userId, String link, String ocrWords, String privateData){
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
@@ -59,6 +59,7 @@ public class MongoUtil {
 		insertUser.put("name", userId);
 		insertUser.put("url", link);
 		insertUser.put("tags", ocrWords);
+		insertUser.put("private", privateData);
 		LOGGER.info("Adding user to DB "+insertUser.toJson());
 		try{
 			database.getCollection(mongoCollection).insertOne(insertUser);
@@ -73,7 +74,12 @@ public class MongoUtil {
 		return status;
 	}
 	
-	
+	/**
+	 * For Simple history
+	 * @param userId
+	 * @param solutionType
+	 * @return
+	 */
 	public String getUserDetails(String userId, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -99,6 +105,12 @@ public class MongoUtil {
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
 	
+	/**
+	 * For Chrome
+	 * @param userId
+	 * @param solutionType
+	 * @return
+	 */
 	public String getUserDetailsForChrome(String userId, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -124,6 +136,13 @@ public class MongoUtil {
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
 	
+	/**
+	 * For Desktop Application
+	 * @param userId
+	 * @param searchParam
+	 * @param solutionType
+	 * @return
+	 */
 	public String getUserDetails(String userId,String searchParam, String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -150,11 +169,51 @@ public class MongoUtil {
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
 	
-	public boolean checkIfUserExists(String userId)
+	/**
+	 * Search across users
+	 * @param userId
+	 * @param searchParam
+	 * @param solutionType
+	 * @return
+	 */
+	public String searchAcrossUsers(String userId,String searchParam,String solutionType)
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
-		queryUser.put("name", userId);
+		queryUser.put("solutionType", solutionType);
+		queryUser.put("private", "NO");
+		queryUser.put("tags", new Document().append("$regex", ".*"+searchParam+".*").append("$options", "i"));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("name", tmp.get("name")).append("url", tmp.get("url")));
+			}
+			LOGGER.info("Cross searching for tags -"+searchParam+" -->"+JSON.serialize(returnJson));
+			updateCrossSearchTelemetry(userId,"Cross-search",solutionType);
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/**
+	 * 
+	 * @param userLogin
+	 * @return
+	 */
+	public boolean performUserLogin(Login userLogin)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("name", userLogin.getUserName());
+		queryUser.put("password", userLogin.getPassword());
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{
 			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
@@ -172,12 +231,21 @@ public class MongoUtil {
 		return false;
 	}
 	
-	
-	public boolean createUser(String userId)
+	/**
+	 * Sign up 
+	 * @param signUpDetails
+	 * @return
+	 */
+	public boolean createUser(UserSignup signUpDetails)
 	{
 		boolean status = false;
 		Document user = new Document();
-		user.put("name", userId);
+		user.put("name", signUpDetails.getUserName());
+		user.put("password", signUpDetails.getPassword());
+		user.put("age", signUpDetails.getAge());
+		user.put("email", signUpDetails.getEmail());
+		user.put("occupation", signUpDetails.getOccpation());
+		user.put("sex", signUpDetails.getSex());
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{
@@ -232,6 +300,52 @@ public class MongoUtil {
 		LOGGER.info("Updated telemtry for the user and solution Type");
 		return status;
 	}
+	
+	public boolean updateCrossSearchTelemetry(String userId, String searchPram, String solutionType)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			Document insertStats = new Document();
+			insertStats.put("name", userId);
+			insertStats.put("solutionType", solutionType);
+			insertStats.put("cross-search-Param", searchPram);
+			insertStats.put("time", new Date());
+			database.getCollection(mongoTelemtryCollection).insertOne(insertStats);
+			status = true;
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Updating Telemetry for the solution");
+		}finally{
+			client.close();
+		}
+		LOGGER.info("Updated telemtry for the user and solution Type");
+		return status;
+	}
+	
+	public boolean updateTelemetryUserSatisfaction(String userId,String rating, String comments,String solutionType)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			Document insertStats = new Document();
+			insertStats.put("name", userId);
+			insertStats.put("rating", rating);
+			insertStats.put("comments", comments);
+			insertStats.put("solutionType", solutionType);
+			insertStats.put("time", new Date());
+			database.getCollection(mongoTelemtryCollection).insertOne(insertStats);
+			status = true;
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Updating Telemetry for the solution");
+		}finally{
+			client.close();
+		}
+		LOGGER.info("Updated telemtry for the user and solution Type");
+		return status;
+	}
+	
 	
 	public String getUsageStatistics()
 	{
@@ -324,9 +438,9 @@ public class MongoUtil {
 		AppStart.loadProperties();
 		MongoUtil.getInstance().dropDatabase();
 		//MongoUtil.getInstance().createUser("Testuser");
-		MongoUtil.getInstance().checkIfUserExists("Testuser");
+		//MongoUtil.getInstance().checkIfUserExists("Testuser");
 		ObjectId _id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1");
+		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1","YES");
 		_id = new ObjectId();
 		//MongoUtil.getInstance().addLinkToUser(_id,"Testuser","http://localhost:2","tag2");
 		_id = new ObjectId();
@@ -337,3 +451,4 @@ public class MongoUtil {
 	}
 	
 }
+
