@@ -85,12 +85,28 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Search History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.search_history)
         
+        self.sa_ur_share = QPushButton("Share")
+        self.connect(self.sa_ur_share, SIGNAL("clicked()"), self.show_preview)
+        
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
-   
+        self.layout.addWidget(self.sa_ur_share,40,10,1,10)
+        self.sa_ur_share.hide()
+        
     def search_history(self):
         print "Please type your Search Query."
         self.task = SearchTab(self, usr)
+        
+    def show_preview(self):
+        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        all_urls = []
+        print "data returned"
+        print data_returned
+        l = literal_eval(data_returned)
+        temp=l[-1]['url']
+        temp2 = temp[0:4] + temp[5:]
+        all_urls.append(temp2)
+        self.task=Thumbnail(all_urls)
         
     def select_area(self):
         print "select an area to snip"
@@ -104,7 +120,7 @@ class OptionsContainer(QWidget):
         self.tw.show()        
         #px2 = pixmap.copy(self.tw.obj)
         #px2.save('ffff.jpg')
-                
+        self.sa_ur_share.show()        
 
 class SearchTab(QtGui.QWidget):
     def __init__(self, main_window, usr):
@@ -186,30 +202,146 @@ class MainWindow(QMainWindow):
         if event.key() == Qt.Key_Q:
             sys.exit()
 
+class DataForm(QDialog):
+    def __init__(self, parent,email):
+        super(DataForm, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Data Agreement Form\n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+        self.setLayout(layout)
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        layout.addWidget(self.nu)
+        self.email=email
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        
+    def button_click(self):
+            self.close()
+            window = MainWindow(self.email)
+            window.show()
+            
+class SignUp_Form(QDialog):
+    def __init__(self, parent):
+        super(SignUp_Form, self).__init__(parent)
+        self.usnname = QLineEdit()
+        self.usnname.setObjectName("username")
+        self.usnname.setText("UserName")
+        self.passwd = QLineEdit()
+        self.passwd.setObjectName("password")
+        self.passwd.setText("Password")
+        self.em = QLineEdit()
+        self.em.setObjectName("Email")
+        self.em.setText("email")
+        self.age = QLineEdit()
+        self.age.setObjectName("age")
+        self.age.setText("Age")
+        self.sex = QLineEdit()
+        self.sex.setObjectName("Sex")
+        self.sex.setText("sex")
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        self.occ=QComboBox()
+        self.occ.addItem("Student")
+        self.occ.addItem("Employed")
+        print self.occ.currentText()
+        layout = QFormLayout()
+        layout.addWidget(self.usnname)
+        layout.addWidget(self.passwd)
+        layout.addWidget(self.em)
+        layout.addWidget(self.age)
+        layout.addWidget(self.sex)
+        layout.addWidget(self.occ)
+        layout.addWidget(self.nu)
+        
+        self.setLayout(layout)
+        
+    def button_click(self):
+            usrnm = self.usnname.text()
+            passwd = self.passwd.text()
+            email = self.em.text()
+            age = self.age.text()
+            if age=="Age":
+                age=0
+            sex = self.sex.text()
+            occ = self.occ.currentText()
+            dict={}
+            dict['userName']=str(usrnm)
+            dict['password']=str(passwd)
+            dict['email']=str(email)
+            dict['age']=int(age)
+            dict['sex']=str(sex)
+            dict['occupation']=str(occ)
+            print dict
+            
+            
+            ####method2 starts
+            #register_openers()
+            #datagen, headers = multipart_encode(dict)
+            #print datagen
+            #headers['Content-Type']='application/json'
+            #print headers
+            request = urllib2.Request('http://192.168.0.15:8080/user/signup')
+            request.add_header('Content-Type','application/json')
+            ##print request
+            print urllib2.urlopen(request,json.dumps(dict)).read()
+            #######
+            self.close()
+            window = DataForm(self,email)
+            window.show()
+            
 class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
 
         self.le = QLineEdit()
-        self.le.setObjectName("username")
-        self.le.setText("TestUser")
-
+        self.le.setObjectName("email")
+        self.le.setText("email")
+        
+        self.pw = QLineEdit()
+        self.pw.setObjectName("password")
+        self.pw.setText("password")
+        
         self.pb = QPushButton()
         self.pb.setObjectName("login")
         self.pb.setText("Log In!") 
 
+        self.nu = QPushButton()
+        self.nu.setObjectName("new user")
+        self.nu.setText("New user!")
+        
         layout = QFormLayout()
         layout.addWidget(self.le)
+        layout.addWidget(self.pw)
         layout.addWidget(self.pb)
-
+        layout.addWidget(self.nu)
         self.setLayout(layout)
         self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.connect(self.nu, SIGNAL("clicked()"),self.signup_form)
         self.setWindowTitle("Snippet Tool")
+        
     def button_click(self):
-        usrnm = self.le.text()
+        email = self.le.text()
+        passwd=self.pw.text()
         self.close()
-        print "Logged in as: ",usrnm
-        window = MainWindow(usrnm)
+        #print "Logged in as: ",usrnm
+        dict={}
+        dict['password']=str(passwd)
+        dict['email']=str(email)
+        request = urllib2.Request('http://192.168.0.15:8080/user/login')
+        request.add_header('Content-Type','application/json')
+        print urllib2.urlopen(request,json.dumps(dict)).read()
+        window = MainWindow(email)
+        window.show()
+        
+    def signup_form(self):
+        #usrnm = self.le.text()
+        self.close()
+        #print "Logged in as: ",usrnm
+        window = SignUp_Form(self)
         window.show()
 
 
