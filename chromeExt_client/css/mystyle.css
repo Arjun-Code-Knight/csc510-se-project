@@ -23,6 +23,52 @@ body
   font-size: 20px;
   line-height: 50px;
 	border-bottom: 5px solid #3498db;
+	z-index: 1;
+}
+
+.navBarMenu {
+	display: inline-block;
+}
+.userName:hover .menuWrapper {
+	display: block;
+}
+.menuWrapper {
+	list-style-type: none;
+	margin: 0;
+	display: none;
+	background: #fff;
+  border-radius: 2px;
+  border: 1px solid #d3d3d3;
+	padding: 2px;
+	position: relative;
+	top: 0px;
+	left: 5px;
+	cursor: pointer;
+	width: 120px;
+}
+.menuWrapper::before {
+	content: '';
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid white;
+  position: absolute;
+  left: 90px;
+  top: -10px;
+}
+
+.menuList {
+	color: #888;
+	height: 25px;
+	line-height: 25px;
+	padding: 2px 4px;
+}
+.menuList:hover {
+	background: rgba(0, 0, 0, 0.1);
+}
+.menuList:nth-child(1) {
+	border-bottom: 1px solid #e5e5e5;
 }
 .title
 {
@@ -31,7 +77,6 @@ body
 }
 .userName
 {
-	width: 100px;
 	display: inline-block;
 	position: absolute;
 	right: 0;
@@ -171,10 +216,13 @@ input.searchImages
 	font-size: 0;
 	height: calc(100% - 40px);
 }
+.ig1{
+	height: calc(100% - 60px);
+}
 
 .userImages {
 	padding: 5px;
-	height: 130px;
+	max-height: 150px;
 	max-width: 130px;
 	margin: auto;
 	position: relative;
@@ -182,7 +230,9 @@ input.searchImages
 }
 .inputContainer {
 	height: 40px;
-
+}
+.ic1 {
+	height: 60px;
 }
 .tagInput {
 	position: absolute;
@@ -326,4 +376,88 @@ input.searchImages
 
 .css-form input.ng-valid.ng-touched {
   border-color: #27ae60;
+}
+
+.button-warning {
+	color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-decoration: none;
+  border-radius: 0;
+  outline: none;
+  border: 1px solid #8e44ad;
+  background: #9b59b6;
+  height: 25px;
+  width: 60px;
+  line-height: 13px;
+  position: absolute;
+  top: 13px;
+  right: 15px;
+}
+
+.imageUrl {
+	position: absolute;
+  top: 210px;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  white-space: nowrap;
+  margin: 0 30px 0 0;
+  left: 10px;
+  right: 10px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+.imageUrlInput {
+	height: 28px;
+  border: none;
+  padding: 7px;
+  box-sizing: border-box;
+	width: 100%;
+	outline: none;
+}
+.imageUrlInput:focus {
+	outline: none;
+}
+.copyCB {
+	position: absolute;
+  top: 210px;
+  height: 30px;
+  width: 30px;
+  right: 10px;
+  font-size: 18px;
+  line-height: 30px;
+  text-align: center;
+	color: #1fa67a;
+}
+.copyCB:hover {
+	color: #1b926c;
+	-webkit-transition: all ease-in-out .15s;
+	-o-transition: all ease-in-out .15s;
+	transition: all ease-in-out .15s;
+}
+
+.private {
+	background: #16a085 !important;
+	position: relative;
+	margin: 5px 50%;
+	left: -100px;
+	font-size: 120% !important;
+	width: 200px;
+}
+
+.public {
+	background: #f1c40f !important;
+	position: relative;
+	margin: 5px 50%;
+	left: -100px;
+	font-size: 120% !important;
+	width: 200px;
+}
+.crossSearch {
+	position: absolute;
+  right: 5px;
+  top: 40px;
 }

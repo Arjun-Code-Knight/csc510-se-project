@@ -18,6 +18,10 @@ snipItApp.config(['$routeProvider',
         templateUrl: 'partials/signUp.html',
         controller: 'SignUpControl'
       }).
+      when('/login', {
+        templateUrl: 'partials/login.html',
+        controller: 'LogInControl'
+      }).
       when('/home', {
         templateUrl: 'partials/home.html',
         controller: 'HomeControl'
@@ -33,6 +37,10 @@ snipItApp.config(['$routeProvider',
       when('/search', {
         templateUrl: 'partials/search.html',
         controller: 'SearchControl'
+      }).
+      when('/snapshot', {
+        templateUrl: 'partials/snapshot.html',
+        controller: 'SnapShotControl'
       }).
       otherwise({
         templateUrl: 'partials/snipIt.html',

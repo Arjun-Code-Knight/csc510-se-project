@@ -1,48 +1,44 @@
 'use strict';
 
-var snipItControllers = angular.module('snipItControllers', []);
-var userName, currImage, currTagList;
-snipItControllers.controller('SnipItControl', ['$scope', '$routeParams','$location',
+var app = angular.module('snipItControllers', []);
+var userName, email, currImage, currTagList;
+app.controller('SnipItControl', ['$scope', '$routeParams','$location',
   function($scope, $routeParams, $location) {
-    // $http.get('phones/phones.json').success(function(data) {
-    //   $scope.phones = data;
-  	// });
 		$scope.title = "Snip It!";
 		var key = JSON.parse(localStorage.getItem("snipItApp"));
 		if(key) {
-				$scope.userName = key["un"];
+				$scope.userName = key["userName"];
+        $scope.email = key["email"];
+        //TODO: logIn
 		} else {
 				$scope.userName = null;
+        $scope.email = null;
 		}
 
-		if($scope.userName) {
-			//TODO: snipit page
+		if($scope.email) {
 			userName = $scope.userName;
+      email = $scope.email;
 			$location.url('/home');
 		}else{
-			//TODO: getIn page
-			//window.location.href = '#/signUp';
-			//$location.path( "/signUp" );
 			$location.url('/signUp');
 		}
 	}
 ]);
 
-snipItControllers.controller('HomeControl', ['$scope', '$routeParams','$location',
+app.controller('HomeControl', ['$scope', '$routeParams','$location',
 	function($scope, $routeParams, $location) {
 		$scope.title = "Snip It!";
 		$scope.name = userName;
+    $scope.email = email;
 		$scope.snipIt = "Take a Snippet";
 		$scope.showHistory = "Show History";
     $scope.searchImages = "Search Images";
-
-    chrome.extension.sendMessage({name: "currentUser", data: userName}, function(){
+    chrome.extension.sendMessage({name: "currentUser", data: email}, function(){
       console.log("userName passed");
     });
 
 		$scope.snipItFunc = function() {
-      window.close();
-      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+      $location.url('/snapshot');
 		}
 
 		$scope.showHistoryFunc = function() {
@@ -67,14 +63,54 @@ snipItControllers.controller('HomeControl', ['$scope', '$routeParams','$location
 	}
 ]);
 
-snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$location',
+app.controller('SnapShotControl', ['$scope', '$routeParams','$location',
 	function($scope, $routeParams, $location) {
+    $scope.takePrivate = "Capture private screenshot";
+    $scope.takePublic = "Capture public screenshot";
+    $scope.publicFunc = function() {
+      chrome.extension.sendMessage({name: "picType", data: "false"}, function(){
+        console.log("pictype passed");
+      });
+      window.close();
+      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+    }
+    $scope.privateFunc = function() {
+      chrome.extension.sendMessage({name: "picType", data: "true"}, function(){
+        console.log("pictype passed");
+      });
+      window.close();
+      chrome.tabs.executeScript(null, {file: "./js/myscript.js"});
+    }
+
+  }
+]);
+
+app.directive('headerDetail', function ($location) {
+    return {
+        restrict: 'E',
+        link: function($scope, element, attrs) {
+            $scope.userName = userName;
+            $scope.renderHome = function() {
+              $location.url('/home');
+            };
+            $scope.signOut = function() {
+              localStorage.removeItem('snipItApp');
+              $location.url('/');
+            }
+        },
+        templateUrl: "../partials/headerDetail.html"
+    };
+});
+
+app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
+	function($scope, $routeParams, $location, $http) {
 		$scope.title = "Snip It!";
 		$scope.placeHolderName = "UserName";
     $scope.placeHolderPass = "Password";
     $scope.placeHolderEmail = "Email";
     $scope.placeHolderAge = "Age";
 		$scope.getIn = "Sign Up!";
+    $scope.logIn = "Login";
     // $scope.userName;
     // $scope.userPass;
     // $scope.email;
@@ -92,17 +128,72 @@ snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$locati
 		$scope.getInFunc = function() {
 			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined) {
 					var obj = {
-                      'username':$scope.userName,
+                      'userName':$scope.userName,
                       'email':$scope.email,
                       'password':$scope.userPass,
                       'age':$scope.age,
-                      'ocp':$scope.data.selectedOption.name,
+                      'occupation':$scope.data.selectedOption.name,
                       'sex':$scope.sex
                     };
-          console.log(obj);
 					localStorage.setItem('snipItApp',JSON.stringify(obj));
 					userName = $scope.userName;
-					$location.url('/home');
+          $http({
+            method: 'POST',
+            url: 'http://localhost:8080/user/signup/',
+            data: obj
+          }).then(function successCallback(response) {
+            delete obj.age;
+            delete obj.occupation;
+            delete obj.sex;
+            localStorage.setItem('snipItApp',JSON.stringify(obj));
+  					userName = $scope.userName;
+            email = $scope.email;
+  					$location.url('/home');
+          }, function errorCallback(response) {
+            console.error("FAILED ");
+            console.log(response);
+          });
+			} else {
+          console.log($scope.email +" "+ $scope.userPass +" "+ $scope.age);
+      }
+		}
+
+    $scope.logInFunc = function() {
+			$location.url('/login');
+		}
+	}
+]);
+
+app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
+	function($scope, $routeParams, $location, $http) {
+		$scope.title = "Snip It!";
+    $scope.placeHolderPass = "Password";
+    $scope.placeHolderEmail = "Email";
+    $scope.logIn = "Login";
+		$scope.logInFunc = function() {
+			if($scope.email != undefined && $scope.userPass != undefined) {
+					var obj = {
+                      'email':$scope.email,
+                      'password':$scope.userPass
+                    };
+          $http({
+            method: 'POST',
+            url: 'http://localhost:8080/user/login/',
+            data: obj
+          }).then(function successCallback(response) {
+            if(response.data.success == "Yes") {
+              userName = response.data.user;
+              obj.userName = userName;
+              localStorage.setItem('snipItApp',JSON.stringify(obj));
+              $location.url('/home');
+            }
+
+          }, function errorCallback(response) {
+            console.error("FAILED");
+          });
+					//localStorage.setItem('snipItApp',JSON.stringify(obj));
+					//userName = $scope.userName;
+					//$location.url('/home');
 			} else {
           console.log($scope.email +" "+ $scope.userPass +" "+ $scope.age);
       }
@@ -110,15 +201,15 @@ snipItControllers.controller('SignUpControl', ['$scope', '$routeParams','$locati
 	}
 ]);
 
-snipItControllers.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
+app.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
 	function($scope, $routeParams, $location, $http) {
 		$scope.title = "Snip It!";
 		$scope.userName = userName;
+    $scope.email = email;
     $scope.url;
     $scope.userData
-    $http.get('http://localhost:8080/user/chrome/'+$scope.userName).success(function(data) {
+    $http.get('http://localhost:8080/user/search/chrome/'+$scope.email).success(function(data) {
         $scope.userData = data;
-        console.log($scope.userData);
     });
 
     $scope.expandImage = function(data) {
@@ -129,7 +220,7 @@ snipItControllers.controller('HistoryControl', ['$scope', '$routeParams','$locat
 	}
 ]);
 
-snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
+app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
 	function($scope, $routeParams, $location, $http) {
 		$scope.title = "Snip It!";
     $scope.enterTags = "Enter tags";
@@ -141,10 +232,12 @@ snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$locatio
       if(arr[i] != '') {
           $scope.tagList.push(arr[i]);
       }
-
     }
-    console.log(currTagList);
     $scope.imageSrc = currImage;
+    $scope.copy = function() {
+      document.getElementsByClassName("imageUrlInput")[0].select();
+      document.execCommand("copy");
+    }
     $scope.addTag = function() {
       var formData = {
         fileName : currImage,
@@ -163,7 +256,6 @@ snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$locatio
       });
     }
     $scope.deleteThis = function(data) {
-      console.log(data.x);
       var formData = {
         fileName : currImage,
         tags : data.x
@@ -183,18 +275,25 @@ snipItControllers.controller('ImageControl', ['$scope', '$routeParams','$locatio
 	}
 ]);
 
-snipItControllers.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
+app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
 	function($scope, $routeParams, $location, $http) {
 		$scope.title = "Snip It!";
     $scope.enterTags = "Search using tags";
 		$scope.userName = userName;
+    $scope.email = email;
     $scope.enteredTag;
     $scope.userData;
+    $scope.crossSearch;
     $scope.search = function() {
-      console.log("check");
-      $http.get('http://localhost:8080/user/'+$scope.userName+'/'+$scope.enteredTag).success(function(data) {
+      console.log($scope.crossSearch);
+      var searchType;
+      if($scope.crossSearch) {
+        searchType = "crosssearch";
+      } else {
+        searchType = "search";
+      }
+      $http.get('http://localhost:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
-          console.log($scope.userData);
       });
     }
 

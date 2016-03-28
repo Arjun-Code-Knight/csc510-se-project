@@ -1,6 +1,6 @@
 <div class = "header">
   <div class = "title">{{title}}</div>
-  <div class = "userName">{{userName}}</div>
+  <header-detail></header-detail>
 </div>
 <div class = "body">
   <div class = "inputContainer">
@@ -13,6 +13,7 @@
       <img class = "currImage" ng-src = {{imageSrc}} />
       <div class = "downloadDiv"></div>
     </a>
+    <div class = "imageUrl" ><input class = "imageUrlInput" value = "{{imageSrc}}" readonly/></div><div class = "copyCB" ng-click = "copy()"><i class="fa fa-clipboard"></i></div>
     <div class = "bottomContainer">
       <div class = "bottomContainerHeader">TAGS:</div>
       <div class = "tags" ng-repeat="x in tagList track by $index">
