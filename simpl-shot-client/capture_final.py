@@ -1,5 +1,6 @@
-
-import os, sys, Queue, numpy, urllib2, json
+from poster.encode import multipart_encode
+from poster.streaminghttp import register_openers
+import os, sys, Queue, numpy, urllib2, json,urllib
 from PySide.QtCore import *
 from PySide.QtGui import *
 import time
@@ -198,14 +199,25 @@ class MainWindow(QMainWindow):
             sys.exit()
     '''
 class DataForm(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent,email):
         super(DataForm, self).__init__(parent)
         self.agreement=QLabel()
         self.agreement.setText("\n Data Agreement Form\n")
         layout = QFormLayout()
         layout.addWidget(self.agreement)
         self.setLayout(layout)
-    
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        layout.addWidget(self.nu)
+        self.email=email
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        
+    def button_click(self):
+            self.close()
+            window = MainWindow(self.email)
+            window.show()
+            
 class SignUp_Form(QDialog):
     def __init__(self, parent):
         super(SignUp_Form, self).__init__(parent)
@@ -248,17 +260,44 @@ class SignUp_Form(QDialog):
             passwd = self.passwd.text()
             email = self.em.text()
             age = self.age.text()
+            if age=="Age":
+                age=0
             sex = self.sex.text()
             occ = self.occ.currentText()
             dict={}
-            dict['username']=usrnm
-            dict['password']=passwd
-            dict['email']=email
-            dict['age']=age
-            dict['sex']=sex
-            dict['occupation']=occ
-            #print dict
-            window = DataForm(self)
+            dict['userName']=str(usrnm)
+            dict['password']=str(passwd)
+            dict['email']=str(email)
+            dict['age']=int(age)
+            dict['sex']=str(sex)
+            dict['occupation']=str(occ)
+            print dict
+            
+            
+            '''
+            #####method 1
+            encoded_args = urllib.urlencode(dict)
+            print encoded_args
+            request = urllib2.Request('http://192.168.0.15:8080/user/signup',encoded_args)
+            #request.add_header('Content-Length', len(encoded_args))
+            request.add_header('Content-Type', 'application/json')
+            print urllib2.urlopen(request).read()
+            '''
+            
+            
+            ####method2 starts
+            #register_openers()
+            #datagen, headers = multipart_encode(dict)
+            #print datagen
+            #headers['Content-Type']='application/json'
+            #print headers
+            request = urllib2.Request('http://192.168.0.15:8080/user/signup')
+            request.add_header('Content-Type','application/json')
+            ##print request
+            print urllib2.urlopen(request,json.dumps(dict)).read()
+            #######
+            self.close()
+            window = DataForm(self,email)
             window.show()
             
 class Form(QDialog):
@@ -266,9 +305,13 @@ class Form(QDialog):
         super(Form, self).__init__(parent)
 
         self.le = QLineEdit()
-        self.le.setObjectName("username")
-        self.le.setText("TestUser")
+        self.le.setObjectName("email")
+        self.le.setText("email")
 
+        self.pw = QLineEdit()
+        self.pw.setObjectName("password")
+        self.pw.setText("password")
+        
         self.pb = QPushButton()
         self.pb.setObjectName("login")
         self.pb.setText("Log In!") 
@@ -279,6 +322,7 @@ class Form(QDialog):
         
         layout = QFormLayout()
         layout.addWidget(self.le)
+        layout.addWidget(self.pw)
         layout.addWidget(self.pb)
         
         layout.addWidget(self.nu)
@@ -289,10 +333,17 @@ class Form(QDialog):
         self.setWindowTitle("Snippet Tool")
 
     def button_click(self):
-        usrnm = self.le.text()
+        email = self.le.text()
+        passwd=self.pw.text()
         self.close()
-        print "Logged in as: ",usrnm
-        window = MainWindow(usrnm)
+        #print "Logged in as: ",usrnm
+        dict={}
+        dict['password']=str(passwd)
+        dict['email']=str(email)
+        request = urllib2.Request('http://192.168.0.15:8080/user/login')
+        request.add_header('Content-Type','application/json')
+        print urllib2.urlopen(request,json.dumps(dict)).read()
+        window = MainWindow(email)
         window.show()
 
     def signup_form(self):
