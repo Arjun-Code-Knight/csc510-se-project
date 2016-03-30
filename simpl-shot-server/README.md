@@ -7,3 +7,4 @@
 5. Go into the target folder and pick the "simpl-shot-server-jar-with-dependencies.jar"
 6. The server can be started using the command - `java -cp  simpl-shot-server-jar-with-dependencies.jar com.simplshot.server.AppStart`
 7. Make Sure to place Tessdata in the directory specificed in the simp-shot-properties
+8. To get this working in linux chnage directories to linux variants
