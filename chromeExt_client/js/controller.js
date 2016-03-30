@@ -97,6 +97,9 @@ app.directive('headerDetail', function ($location) {
               localStorage.removeItem('snipItApp');
               $location.url('/');
             }
+            $scope.feedback = function() {
+              $location.url('/feedback');
+            }
         },
         templateUrl: "../partials/headerDetail.html"
     };
@@ -150,7 +153,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
             email = $scope.email;
   					$location.url('/home');
           }, function errorCallback(response) {
-            console.error("FAILED ");
+            console.error("FAILED");
             console.log(response);
           });
 			} else {
@@ -303,4 +306,30 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
       $location.url('/image');
     }
 	}
+]);
+
+app.controller('FeedbackControl', ['$scope', '$routeParams','$location','$http',
+	function($scope, $routeParams, $location, $http) {
+    $scope.number = [1,2,3,4,5];
+    $scope.title = "Snip It!";
+    $scope.submitText = "Submit";
+    $scope.feedback = "Feedback";
+    $scope.index;
+    $scope.fb;
+    $scope.highlightStars = function(e) {
+      var par = document.getElementById("stars");
+      for(var i = this.$index; i < 5; i++) {
+        par.childNodes[i*2+2].childNodes[0].className = "fa fa-star fill";
+      }
+      for(var i = 0; i < this.$index; i++) {
+        par.childNodes[i*2+2].childNodes[0].className = "fa fa-star-o";
+      }
+      $scope.index = this.$index;
+    }
+    $scope.submit = function() {
+      console.log($scope.index+1);
+      console.log($scope.fb);
+    }
+	}
+
 ]);
