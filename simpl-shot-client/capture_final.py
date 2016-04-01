@@ -234,7 +234,7 @@ class userReview(QDialog):
             rating = "4"
         else:
             rating = "5"
-        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION3").read()
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION1-DESKTOPWITHOUTSERACH").read()
         self.close()
                 
 
