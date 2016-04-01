@@ -122,15 +122,13 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
     $scope.data = {
       availableOptions: [
         {id: '1', name: 'Background'},
-        {id: '2', name: 'Student'},
-        {id: '3', name: 'Professor'},
-        {id: '4', name: 'Technical Professional'},
-        {id: '5', name: 'Non-Technical Professional'}
+        {id: '2', name: 'Technical'},
+        {id: '3', name: 'Non-Technical'}
       ],
       selectedOption: {id: '2', name: 'Student'}
     };
 		$scope.getInFunc = function() {
-			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined && $scope.iAgree) {
+			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined && $scope.iAgree && $scope.data.selectedOption.id != 1) {
 					var obj = {
                       'userName':$scope.userName,
                       'email':$scope.email,
@@ -144,7 +142,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
           email = $scope.email;
           $http({
             method: 'POST',
-            url: 'http://192.168.0.31:8080/user/signup/',
+            url: 'http://localhost:8080/user/signup/',
             data: obj
           }).then(function successCallback(response) {
             delete obj.age;
@@ -183,7 +181,7 @@ app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
                     };
           $http({
             method: 'POST',
-            url: 'http://192.168.0.31:8080/user/login/',
+            url: 'http://localhost:8080/user/login/',
             data: obj
           }).then(function successCallback(response) {
             if(response.data.success == "Yes") {
@@ -214,7 +212,7 @@ app.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
     $scope.email = email;
     $scope.url;
     $scope.userData
-    $http.get('http://192.168.0.31:8080/user/search/chrome/'+$scope.email).success(function(data) {
+    $http.get('http://localhost:8080/user/search/chrome/'+$scope.email).success(function(data) {
         $scope.userData = data;
     });
 
@@ -251,7 +249,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.31:8080/uploadService/chrome/tags',
+        url: 'http://localhost:8080/uploadService/chrome/tags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.push($scope.enteredTag);
@@ -268,7 +266,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://192.168.0.31:8080/uploadService/chrome/deletetags',
+        url: 'http://localhost:8080/uploadService/chrome/deletetags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.splice(data.$index,1);
@@ -298,7 +296,7 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
       } else {
         searchType = "search";
       }
-      $http.get('http://192.168.0.31:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
+      $http.get('http://localhost:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
       });
     }
@@ -331,7 +329,7 @@ app.controller('FeedbackControl', ['$scope', '$routeParams','$location','$http',
     }
     $scope.submit = function() {
       var rating = $scope.index+1;
-      $http.get('http://192.168.0.31:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
+      $http.get('http://localhost:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
         $location.url('/');
       });
     }

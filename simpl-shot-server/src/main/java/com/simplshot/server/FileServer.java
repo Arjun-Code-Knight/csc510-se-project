@@ -143,7 +143,7 @@ public class FileServer {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			MongoUtil.getInstance().UpdateTagsUsageTelemetry(UserService.SOLUTION2);
+			MongoUtil.getInstance().UpdateTagsUsageTelemetry(UserService.SOLUTION2,"Tag-Update");
 			if(status)
 				return Response.status(200).entity(SUCCESS).build();
 			else
@@ -172,7 +172,7 @@ public class FileServer {
 				LOGGER.severe(e.getMessage());
 				e.printStackTrace();
 			}
-			MongoUtil.getInstance().UpdateTagsUsageTelemetry(UserService.SOLUTION2);
+			MongoUtil.getInstance().UpdateTagsUsageTelemetry(UserService.SOLUTION2,"Tag-Delete");
 			if(status)
 				return Response.status(200).entity(SUCCESS).build();
 			else

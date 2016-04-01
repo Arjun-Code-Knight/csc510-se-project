@@ -24,7 +24,8 @@ public class TelemetryServcie {
 	/*
 	 * 
 	 * Get usage statistics
-	 * 
+	 * count of which solution is widely used
+	 *
 	 */
 	@GET	
 	@Path("/getusagestats/")
@@ -42,7 +43,7 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/gettagsusagestats/")
+	@Path("/gettagsusagestats/")/*Manually tagging*/
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getTagsUsageStats()
 	{
@@ -57,7 +58,7 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getxsearchstatus/")
+	@Path("/getxsearchstats/")/*which solution is being used for cross search- pivate search vs Xsearch*/ 
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCrossSearchUsage()
 	{
@@ -71,7 +72,7 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getagestats/")
+	@Path("/getagestats/")/* average age of the suer base*/ 
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAgeUsageStats()
 	{
@@ -86,7 +87,7 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getoccupationstats/")
+	@Path("/getoccupationstats/")/*group and give count*/
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getOccupationStats()
 	{
@@ -101,11 +102,55 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getusersatisfcationstats/")
+	@Path("/getusersatisfcationstats/")/* ratings*/
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUserSatisfactionStats()
 	{
 		String responseFromMongo = mongoUtil.getUserSatisfactionSurvey();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	
+	/* 
+	 * Get usage statistics on age
+	 * 
+	 */
+	@GET	
+	@Path("/getusersatisfcationstats/mostlikedsolution/")/* ratings*/
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserSatisfactionStatsmostliked()
+	{
+		String responseFromMongo = mongoUtil.getUserSatisfactionSurveyLikeSoution();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	
+	/* 
+	 * Get usage statistics on age
+	 * 
+	 */
+	@GET	
+	@Path("/getusersatisfcationstats/mostlikedsolutionwithavgage/")/* ratings*/
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserSatisfactionStatswithLikeSoltuionAvgAge()
+	{
+		String responseFromMongo = mongoUtil.getUserSatisfactionSurveywithAvgAge();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	/* 
+	 * Get usage statistics on occupation
+	 * 
+	 */
+	@GET	
+	@Path("/getusersatisfcationstats/mostlikedsolutionwithoccupation/")/* ratings*/
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserSatisfactionStatswithLikeSoltuionwithOccupation()
+	{
+		String responseFromMongo = mongoUtil.getUserSatisfactionSurveywithOccupation();
 		LOGGER.info("Get tags usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
