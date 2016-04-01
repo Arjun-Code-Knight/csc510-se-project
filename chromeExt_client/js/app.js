@@ -42,6 +42,10 @@ snipItApp.config(['$routeProvider',
         templateUrl: 'partials/snapshot.html',
         controller: 'SnapShotControl'
       }).
+      when('/feedback', {
+        templateUrl: 'partials/feedback.html',
+        controller: 'FeedbackControl'
+      }).
       otherwise({
         templateUrl: 'partials/snipIt.html',
         controller: 'SnipItControl'

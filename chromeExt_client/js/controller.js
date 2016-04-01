@@ -9,7 +9,6 @@ app.controller('SnipItControl', ['$scope', '$routeParams','$location',
 		if(key) {
 				$scope.userName = key["userName"];
         $scope.email = key["email"];
-        //TODO: logIn
 		} else {
 				$scope.userName = null;
         $scope.email = null;
@@ -97,6 +96,9 @@ app.directive('headerDetail', function ($location) {
               localStorage.removeItem('snipItApp');
               $location.url('/');
             }
+            $scope.feedback = function() {
+              $location.url('/feedback');
+            }
         },
         templateUrl: "../partials/headerDetail.html"
     };
@@ -111,9 +113,11 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
     $scope.placeHolderAge = "Age";
 		$scope.getIn = "Sign Up!";
     $scope.logIn = "Login";
+    $scope.pa = "Privacy Policy Agreement\n\n1) Any personal information collected from you while using this app, will remain confidential\n2) Any private screenshots taken with this app will not be visible to anyone else. However the images will be stored on the cloud.\n3) Any public screenshots taken with the app will be visible to all users of the app. However they will not have access to your personal details.";
     // $scope.userName;
     // $scope.userPass;
     // $scope.email;
+    $scope.iAgree;
     $scope.sex;
     $scope.data = {
       availableOptions: [
@@ -126,7 +130,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
       selectedOption: {id: '2', name: 'Student'}
     };
 		$scope.getInFunc = function() {
-			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined) {
+			if($scope.email != undefined && $scope.userPass != undefined && $scope.age != undefined && $scope.iAgree) {
 					var obj = {
                       'userName':$scope.userName,
                       'email':$scope.email,
@@ -139,7 +143,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
 					userName = $scope.userName;
           $http({
             method: 'POST',
-            url: 'http://localhost:8080/user/signup/',
+            url: 'http://192.168.0.31:8080/user/signup/',
             data: obj
           }).then(function successCallback(response) {
             delete obj.age;
@@ -150,7 +154,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
             email = $scope.email;
   					$location.url('/home');
           }, function errorCallback(response) {
-            console.error("FAILED ");
+            console.error("FAILED");
             console.log(response);
           });
 			} else {
@@ -178,7 +182,7 @@ app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
                     };
           $http({
             method: 'POST',
-            url: 'http://localhost:8080/user/login/',
+            url: 'http://192.168.0.31:8080/user/login/',
             data: obj
           }).then(function successCallback(response) {
             if(response.data.success == "Yes") {
@@ -208,7 +212,7 @@ app.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
     $scope.email = email;
     $scope.url;
     $scope.userData
-    $http.get('http://localhost:8080/user/search/chrome/'+$scope.email).success(function(data) {
+    $http.get('http://192.168.0.31:8080/user/search/chrome/'+$scope.email).success(function(data) {
         $scope.userData = data;
     });
 
@@ -245,7 +249,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://localhost:8080/uploadService/chrome/tags',
+        url: 'http://192.168.0.31:8080/uploadService/chrome/tags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.push($scope.enteredTag);
@@ -262,7 +266,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://localhost:8080/uploadService/chrome/deletetags',
+        url: 'http://192.168.0.31:8080/uploadService/chrome/deletetags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.splice(data.$index,1);
@@ -292,7 +296,7 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
       } else {
         searchType = "search";
       }
-      $http.get('http://localhost:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
+      $http.get('http://192.168.0.31:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
       });
     }
@@ -301,6 +305,33 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
     $scope.expandImage = function(data) {
       currImage = data.x.url;
       $location.url('/image');
+    }
+	}
+]);
+
+app.controller('FeedbackControl', ['$scope', '$routeParams','$location','$http',
+	function($scope, $routeParams, $location, $http) {
+    $scope.number = [1,2,3,4,5];
+    $scope.title = "Snip It!";
+    $scope.submitText = "Submit";
+    $scope.feedback = "Feedback";
+    $scope.index;
+    $scope.fb;
+    $scope.highlightStars = function(e) {
+      var par = document.getElementById("stars");
+      for(var i = this.$index; i < 5; i++) {
+        par.childNodes[i*2+2].childNodes[0].className = "fa fa-star fill";
+      }
+      for(var i = 0; i < this.$index; i++) {
+        par.childNodes[i*2+2].childNodes[0].className = "fa fa-star-o";
+      }
+      $scope.index = this.$index;
+    }
+    $scope.submit = function() {
+      var rating = $scope.index+1;
+      $http.get('http://192.168.0.31:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
+        $location.url('/');
+      });
     }
 	}
 ]);
