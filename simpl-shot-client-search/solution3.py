@@ -107,7 +107,7 @@ class OptionsContainer(QWidget):
         self.task = SearchTab(self, usrnm)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
         all_urls = []
         print "data returned"
         print data_returned
@@ -163,14 +163,9 @@ class SearchTab(QtGui.QWidget):
         print "Cross Search:" , crosssearch
         s = self.qsbar.text()
         if crosssearch:
-        	#request = urllib2.Request("http://localhost:8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
-                data_returned = urllib2.urlopen("http://" + ip + ":8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
+        	    data_returned = urllib2.urlopen("http://" + ip + ":8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
         else:
-        	#request = urllib2.urlopen("http://localhost:8080/user/search/" + usrnm + "/" + s + "/").read()
         	data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/" + s + "/").read()
-        #request.add_header('Content-Type','application/json')
-        #data_returned = urllib2.urlopen(request,json.dumps(dict)).read()
-        #data_returned = urllib2.urlopen(request).read()
         l = literal_eval(data_returned)        
         all_urls = []
         for each in l:
@@ -197,10 +192,6 @@ class Thumbnail(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout(self.widget)
         self.scrollarea.setWidget(self.widget)
         self.layout.setAlignment(QtCore.Qt.AlignHCenter)
-        #qbtn = QtGui.QPushButton('Quit', self)
-        #qbtn.clicked.connect(self.close)
-        #qbtn.resize(qbtn.sizeHint())
-        #qbtn.move(20, 20)
         for each in url:
             data = urllib2.urlopen(each).read()
             image = QtGui.QImage()
