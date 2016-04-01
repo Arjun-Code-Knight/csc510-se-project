@@ -57,7 +57,7 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getxsearchstatus/")
+	@Path("/getxsearchstats/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCrossSearchUsage()
 	{
