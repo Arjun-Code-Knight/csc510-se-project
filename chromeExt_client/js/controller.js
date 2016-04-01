@@ -329,7 +329,7 @@ app.controller('FeedbackControl', ['$scope', '$routeParams','$location','$http',
     }
     $scope.submit = function() {
       var rating = $scope.index+1;
-      $http.get('http://192.168.0.31:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2').success(function(data) {
+      $http.get('http://192.168.0.31:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
         $location.url('/');
       });
     }
