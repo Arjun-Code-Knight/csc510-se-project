@@ -20,6 +20,10 @@
             Female <input id="option-two" type="radio" ng-model="sex" name="optionsRadios" value="female">
         </label>
       </div>
+      <div class = "feedback">
+        <textarea class = "userAgreement" ng-model = "pa" readonly></textarea>
+      </div>
+      <label class = "iAgree"><input type="checkbox" ng-model="iAgree">  I agree to the terms and conditions</label>
       <input class="button-large pure-button pure-button-primary userNameSubmit" type="submit" value="{{getIn}}">
     </form>
   </div>

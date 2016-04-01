@@ -93,6 +93,7 @@ body
 	bottom: 0;
 	width: 100%;
 	background: #ecf0f1;
+	overflow: auto;
 }
 .body2 {
 	text-align: center;
@@ -551,4 +552,19 @@ input.searchImages
 	width: 70px;
 	margin: 0 auto;
 	margin-top: 5px;
+}
+
+.userAgreement {
+	margin: 0 auto !important;
+	border: 1px solid #ccc !important;
+	box-shadow: inset 0 1px 3px #ddd !important;
+	width: 186px !important;
+	font-size: 12px !important;
+	overflow-y: scroll;
+	background-color: #fff !important;
+}
+
+.iAgree {
+	width: 210px;
+	margin: 10px 45px !important;
 }
