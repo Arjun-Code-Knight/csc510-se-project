@@ -8,7 +8,7 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-
+ip = "192.168.0.31"
 class TransWindow(QWidget,QPixmap):    
     def __init__(self,QPixmap,main_window, user, pri):
         global usrnm, private
@@ -68,7 +68,7 @@ class TransWindow(QWidget,QPixmap):
             dict['private'] = "FALSE"
         datagen, headers = multipart_encode({"attachment":ob,"email":dict['username'], "private":dict['private']})
         print  dict
-        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
+        request = urllib2.Request('http://' + ip + ':8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         print "Thank you for your patience. You may continue using the tool."
@@ -107,7 +107,7 @@ class OptionsContainer(QWidget):
         self.sa_ur_share.hide()
    
     def show_history(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
         all_urls = []
         print "data returned"
         print data_returned
@@ -120,7 +120,7 @@ class OptionsContainer(QWidget):
         self.task = Thumbnail(all_urls)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()
         all_urls = []
         print "data returned"
         print data_returned
@@ -224,6 +224,17 @@ class userReview(QDialog):
         review = self.qsbar.text()
         print "USER = ", usrnm
         print "Review = ", review
+        if self.r1.isChecked():
+            rating = "1"
+        elif self.r2.isChecked():
+            rating = "2"
+        elif self.r3.isChecked():
+            rating = "3"
+        elif self.r4.isChecked():
+            rating = "4"
+        else:
+            rating = "5"
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION3").read()
         self.close()
                 
 
