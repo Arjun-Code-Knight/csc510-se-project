@@ -6,7 +6,7 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-ip = "192.168.0.31"
+ip = "localhost"
 class TransWindow(QWidget,QPixmap):
     def __init__(self,QPixmap, main_window, user, pri):
         super(TransWindow, self).__init__()
@@ -340,7 +340,7 @@ class SignUp_Form(QDialog):
         layout.addWidget(self.occupation)
         layout.addWidget(self.occ)
         layout.addWidget(self.nu)
-        
+        self.setWindowTitle("Sign up")
         self.setLayout(layout)
         
     def button_click(self):
