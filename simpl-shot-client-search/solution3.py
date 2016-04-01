@@ -98,9 +98,14 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Search History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.search_history)
         
+        self.sa_ur_share = QPushButton("Share")
+        self.connect(self.sa_ur_share, SIGNAL("clicked()"), self.show_preview)
+        
         self.layout.addWidget(self.cb,10,10,1,10)
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
+        self.layout.addWidget(self.sa_ur_share,40,10,1,10)
+        self.sa_ur_share.hide()
         
     def search_history(self):
         print "Please type your Search Query."
@@ -134,7 +139,8 @@ class OptionsContainer(QWidget):
         self.tw = TransWindow(pixmap, self.main_window, usrnm, private)
         self.tw.mouse_press = False
         self.tw.show()        
-
+        self.sa_ur_share.show()
+        
 class SearchTab(QtGui.QWidget):
     def __init__(self, main_window, user):
         global usrnm
