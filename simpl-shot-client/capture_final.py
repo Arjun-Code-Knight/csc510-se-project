@@ -8,7 +8,7 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-ip = "192.168.0.31"
+ip = "localhost"
 class TransWindow(QWidget,QPixmap):    
     def __init__(self,QPixmap,main_window, user, pri):
         global usrnm, private
@@ -120,7 +120,7 @@ class OptionsContainer(QWidget):
         self.task = Thumbnail(all_urls)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
         all_urls = []
         print "data returned"
         print data_returned
