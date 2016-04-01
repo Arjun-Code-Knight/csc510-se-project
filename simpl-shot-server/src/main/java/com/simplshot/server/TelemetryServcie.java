@@ -29,11 +29,86 @@ public class TelemetryServcie {
 	@GET	
 	@Path("/getusagestats/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response get()
+	public Response getUsageStatistics()
 	{
 		String responseFromMongo = mongoUtil.getUsageStatistics();
 		LOGGER.info("Get usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
+	
+	/*
+	 * 
+	 * Get usage statistics
+	 * 
+	 */
+	@GET	
+	@Path("/gettagsusagestats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getTagsUsageStats()
+	{
+		String responseFromMongo = mongoUtil.getTagsUsageTelemetry();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
 
+	/*
+	 * 
+	 * Get usage statistics
+	 * 
+	 */
+	@GET	
+	@Path("/getxsearchstatus/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCrossSearchUsage()
+	{
+		String responseFromMongo = mongoUtil.getxStatistics();
+		LOGGER.info("Get usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	/* 
+	 * Get usage statistics on occupation
+	 * 
+	 */
+	@GET	
+	@Path("/getagestats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAgeUsageStats()
+	{
+		String responseFromMongo = mongoUtil.getAgeTelemetry();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+
+
+	/* 
+	 * Get usage statistics on age
+	 * 
+	 */
+	@GET	
+	@Path("/getoccupationstats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getOccupationStats()
+	{
+		String responseFromMongo = mongoUtil.getOccupationTelemetry();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+
+	
+	/* 
+	 * Get usage statistics on age
+	 * 
+	 */
+	@GET	
+	@Path("/getusersatisfcationstats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserSatisfactionStats()
+	{
+		String responseFromMongo = mongoUtil.getUserSatisfactionSurvey();
+		LOGGER.info("Get tags usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	
 }
