@@ -141,6 +141,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
                     };
 					localStorage.setItem('snipItApp',JSON.stringify(obj));
 					userName = $scope.userName;
+          email = $scope.email;
           $http({
             method: 'POST',
             url: 'http://192.168.0.31:8080/user/signup/',
@@ -187,6 +188,7 @@ app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
           }).then(function successCallback(response) {
             if(response.data.success == "Yes") {
               userName = response.data.user;
+              email = $scope.email;
               obj.userName = userName;
               localStorage.setItem('snipItApp',JSON.stringify(obj));
               $location.url('/home');
