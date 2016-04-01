@@ -6,12 +6,14 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-
+ip = "192.168.0.31"
 class TransWindow(QWidget,QPixmap):
-    def __init__(self,QPixmap,usr, main_window):
+    def __init__(self,QPixmap, main_window, user, pri):
         super(TransWindow, self).__init__()
         global usrnm
-        usrnm = usr
+        usrnm = user
+        global private
+        private = pri
         self.main_window = main_window
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -48,7 +50,7 @@ class TransWindow(QWidget,QPixmap):
         if event.pos().x() < self.origin.x() :
             origin_left= event.pos().x()
         if event.pos().y() <self.origin.y():
-            origin_top=event.pos().y()   
+            origin_top=event.pos().y()
         self.obj=QRect(origin_left,origin_top, diff,y_diff)   
         self.rubberBand.hide()
         self.hide()
@@ -56,8 +58,18 @@ class TransWindow(QWidget,QPixmap):
         px2.save(('temp_copy.jpg'))
         register_openers()
         ob = open("temp_copy.jpg","rb")
-        datagen, headers = multipart_encode({"attachment":ob,"USER":usrnm})
-        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
+
+
+        dict = {}
+        dict['username'] = str(usrnm)
+        if private:
+            dict['private'] = "TRUE"
+        else:
+            dict['private'] = "FALSE"
+
+        datagen, headers = multipart_encode({"attachment":ob,"email":dict['username'], "private":dict['private']})
+        print  dict
+        request = urllib2.Request('http://' + ip + ':8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         print "Thank you for your patience. You may continue using the tool."
@@ -66,9 +78,9 @@ class TransWindow(QWidget,QPixmap):
         
         
 class OptionsContainer(QWidget):
-    def __init__(self, main_window, usrnm):
-        global usr
-        usr = usrnm
+    def __init__(self, main_window, user):
+        global usrnm
+        usrnm = user
         QWidget.__init__(self)
         self.main_window = main_window
         self.layout = QGridLayout()
@@ -78,6 +90,7 @@ class OptionsContainer(QWidget):
         
         self.sa_show_bt = QPushButton("Show Area")
         self.sa_show_bt.setCheckable(True)
+        self.cb = QtGui.QCheckBox('Check if Private Snippet', self)
         
         self.sa_ul_bt = QPushButton("Start Clipping!")
         self.connect(self.sa_ul_bt, SIGNAL("clicked()"), self.select_area)
@@ -85,20 +98,16 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Search History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.search_history)
         
-        self.sa_ur_share = QPushButton("Share")
-        self.connect(self.sa_ur_share, SIGNAL("clicked()"), self.show_preview)
-        
+        self.layout.addWidget(self.cb,10,10,1,10)
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
-        self.layout.addWidget(self.sa_ur_share,40,10,1,10)
-        self.sa_ur_share.hide()
         
     def search_history(self):
         print "Please type your Search Query."
-        self.task = SearchTab(self, usr)
+        self.task = SearchTab(self, usrnm)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()#testUSER3 hardcoded
         all_urls = []
         print "data returned"
         print data_returned
@@ -109,41 +118,59 @@ class OptionsContainer(QWidget):
         self.task=Thumbnail(all_urls)
         
     def select_area(self):
+        if(self.cb.isChecked()):
+            private = True
+        else:
+            private = False
+        print "Private image:" , private
+        print "USERNAME:", usrnm
+
         print "select an area to snip"
         self.main_window.showMinimized()
         self.clicked  = False
         time.sleep(0.5)
         pixmap = QPixmap.grabWindow(QApplication.desktop().winId())
         print pixmap
-        self.tw = TransWindow(pixmap,usr,self.main_window)
+        self.tw = TransWindow(pixmap, self.main_window, usrnm, private)
         self.tw.mouse_press = False
         self.tw.show()        
-        #px2 = pixmap.copy(self.tw.obj)
-        #px2.save('ffff.jpg')
-        self.sa_ur_share.show()        
 
 class SearchTab(QtGui.QWidget):
-    def __init__(self, main_window, usr):
-        global user
-        user = usr
+    def __init__(self, main_window, user):
+        global usrnm
+        usrnm = user
         QWidget.__init__(self)
         self.main_window = main_window
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        global qsbar
+        self.cb = QtGui.QCheckBox('Enable Cross Search', self)
+        self.layout.addWidget(self.cb,25,10,1,10)
         self.qsbar = QtGui.QLineEdit(self)
-        self.qsbar.move(50, 40)
-        self.qbtn = QPushButton('Search')
+        self.layout.addWidget(self.qsbar, 10, 10, 1, 10)
+        self.qbtn = QPushButton("Search")
+        self.qbtn.setCheckable(True)
+        self.layout.addWidget(self.qbtn, 20, 10, 1, 10)
         self.connect(self.qbtn, SIGNAL("clicked()"), self.search_results)
-        self.qbtn.move(30, 30)
-        self.layout.addWidget(self.qbtn)
         self.setGeometry(200, 200, 200, 200)
         self.setWindowTitle('Simple-Shot History')
         self.show()
 
     def search_results(self):
+        if(self.cb.isChecked()):
+            crosssearch = True
+        else:
+            crosssearch = False
+        print "Cross Search:" , crosssearch
         s = self.qsbar.text()
-        data_returned = urllib2.urlopen("http://localhost:8080/user/" + user + "/" + s + "/").read()#testUSER3 hardcoded
+        if crosssearch:
+        	#request = urllib2.Request("http://localhost:8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
+                data_returned = urllib2.urlopen("http://" + ip + ":8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
+        else:
+        	#request = urllib2.urlopen("http://localhost:8080/user/search/" + usrnm + "/" + s + "/").read()
+        	data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/" + s + "/").read()
+        #request.add_header('Content-Type','application/json')
+        #data_returned = urllib2.urlopen(request,json.dumps(dict)).read()
+        #data_returned = urllib2.urlopen(request).read()
         l = literal_eval(data_returned)        
         all_urls = []
         for each in l:
@@ -190,17 +217,79 @@ class Thumbnail(QtGui.QWidget):
         self.setWindowTitle('Simple-Shot')
         self.show()
         print "Thumbnail displayed"
+
+
+class userReview(QDialog):
+    def __init__(self, parent, user):
+        global usrnm
+        usrnm = user
+        global prnt
+        prnt = parent
+        super(userReview, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Please review \n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+
+
+        self.r1 = QRadioButton("1")
+        self.r2 = QRadioButton("2")
+        self.r3 = QRadioButton("3")
+        self.r4 = QRadioButton("4")
+        self.r5 = QRadioButton("5")
+        self.r5.setChecked(True)
+        layout.addWidget(self.r1)
+        layout.addWidget(self.r2)
+        layout.addWidget(self.r3)
+        layout.addWidget(self.r4)
+        layout.addWidget(self.r5)
+        self.qsbar = QtGui.QLineEdit(self)
+        layout.addWidget(self.qsbar)
+        self.setLayout(layout)
+        self.nu = QPushButton()
+        self.nu.setObjectName("submit")
+        self.nu.setText("Submit!")
+        layout.addWidget(self.nu)
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+
+    def button_click(self):
+        review = self.qsbar.text()
+        print "USER = ", usrnm
+        print "Review = ", review
+        if self.r1.isChecked():
+            rating = "1"
+        elif self.r2.isChecked():
+            rating = "2"
+        elif self.r3.isChecked():
+            rating = "3"
+        elif self.r4.isChecked():
+            rating = "4"
+        else:
+            rating = "5"
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION3").read()
+        self.close()
         
 class MainWindow(QMainWindow):
-    def __init__(self, usrnm):
+    def __init__(self, user):
+        global usrnm
+        usrnm = user
         QMainWindow.__init__(self,None)
         self.options = OptionsContainer(self, usrnm)
         self.setCentralWidget(self.options)
         self.arrow_icon = os.path.abspath(os.path.dirname(__file__)+"/cursor3.png")
         print "self.arrow_icon",self.arrow_icon
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Q:
-            sys.exit()
+        
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, 'Message',
+            "Do you want to review our app?", QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            event.ignore()
+            window = userReview(self, usrnm)
+            window.show()
+        else:
+            event.accept()
 
 class DataForm(QDialog):
     def __init__(self, parent,email):
@@ -284,7 +373,7 @@ class SignUp_Form(QDialog):
             #print datagen
             #headers['Content-Type']='application/json'
             #print headers
-            request = urllib2.Request('http://192.168.0.15:8080/user/signup')
+            request = urllib2.Request('http://' + ip + ':8080/user/signup')
             request.add_header('Content-Type','application/json')
             ##print request
             print urllib2.urlopen(request,json.dumps(dict)).read()
@@ -331,7 +420,7 @@ class Form(QDialog):
         dict={}
         dict['password']=str(passwd)
         dict['email']=str(email)
-        request = urllib2.Request('http://192.168.0.15:8080/user/login')
+        request = urllib2.Request("http://" + ip + ":8080/user/login")
         request.add_header('Content-Type','application/json')
         print urllib2.urlopen(request,json.dumps(dict)).read()
         window = MainWindow(email)
