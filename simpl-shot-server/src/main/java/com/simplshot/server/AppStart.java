@@ -31,6 +31,7 @@ public class AppStart {
             resourceConfig.register(MultiPartFeature.class);
             resourceConfig.register(MyResource.class);
             resourceConfig.register(UserService.class);
+            resourceConfig.register(TelemetryServcie.class);
             final HttpServer server = GrizzlyHttpServerFactory.createHttpServer(BASE_URI, resourceConfig);
             System.in.read();
             server.stop();

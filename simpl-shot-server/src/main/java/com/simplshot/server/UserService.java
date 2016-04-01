@@ -25,9 +25,9 @@ public class UserService {
 
 	private static final int ERROR = 500;
 	private static final int SUCCESS = 200;
-	private static final String SOLUTION1 = "SOLUTION1-DESKTOPWITHOUTSERACH";//just history
-	private static final String SOLUTION2 = "SOLUTION2-CHROME";//chrome use specific tags
-	private static final String SOLUTION3 = "SOLUTION3-DESKTOPWITHSEARCH";// tesseract
+	public static final String SOLUTION1 = "SOLUTION1-DESKTOPWITHOUTSERACH";//just history
+	public static final String SOLUTION2 = "SOLUTION2-CHROME";//chrome use specific tags
+	public static final String SOLUTION3 = "SOLUTION3-DESKTOPWITHSEARCH";// tesseract
 	private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 	private MongoUtil mongoUtil = MongoUtil.getInstance();
 	

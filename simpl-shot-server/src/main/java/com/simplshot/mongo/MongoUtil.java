@@ -197,7 +197,7 @@ public class MongoUtil {
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("emailId")).append("url", tmp.get("url")));
+				returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")));
 			}
 			LOGGER.info("Cross searching for tags -"+searchParam+" -->"+JSON.serialize(returnJson));
 			updateCrossSearchTelemetry(emailId,"Cross-search",solutionType);
@@ -390,6 +390,27 @@ public class MongoUtil {
 		return status;
 	}
 	
+	public boolean UpdateTagsUsageTelemetry(String solutionType)
+	{
+		boolean status = false;
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			Document insertStats = new Document();
+			insertStats.put("solutionType", solutionType);
+			insertStats.put("update-tags", "Tag-Update");
+			insertStats.put("time", new Date());
+			database.getCollection(mongoTelemtryCollection).insertOne(insertStats);
+			status = true;
+		}catch(MongoException ex){;
+			LOGGER.severe("Error Updating Telemetry for the solution");
+		}finally{
+			client.close();
+		}
+		LOGGER.info("Updated telemtry for the user and solution Type");
+		return status;
+	}
+	
 	public boolean updateTelemetryUserSatisfaction(String emailId,String rating, String comments,String solutionType)
 	{
 		boolean status = false;
@@ -424,18 +445,170 @@ public class MongoUtil {
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("emailId")).append("solutionType", tmp.get("solutionType")).
+				returnJson.add(new Document().append("email", tmp.get("email")).append("solutionType", tmp.get("solutionType")).
 						append("time", tmp.getDate("time")));
 			}
-			LOGGER.info("Got Usage Statistics -- "+JSON.serialize(returnJson));
+			LOGGER.info("Got Solution Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
-			LOGGER.severe("Error getting Statistics");
+			LOGGER.severe("Error getting solution usage Statistics");
 		}finally{
 			client.close();
 		}
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
+	
+	/*
+	 * 
+	 * Which solution, they use cross search more
+	 * 
+	 */
+	public String getxStatistics()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("cross-search-Param", "Cross-search");
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("email", tmp.get("email")).append("solutionType", tmp.get("solutionType")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got cross Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting cross usage Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/*
+	 * 
+	 * tags usage telemetry
+	 * 
+	 */
+	public String getTagsUsageTelemetry()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("update-tags", "Tag-Update");
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("solutionType", tmp.get("solutionType")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting tags Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/*
+	 * 
+	 * get users age telemetry
+	 * 
+	 */
+	public String getAgeTelemetry()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("age",  new Document().append("$exists", true));
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("email", tmp.get("email")).append("age", tmp.get("age")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting tags Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/*
+	 * 
+	 * get occupation telemetry
+	 * 
+	 */
+	public String getOccupationTelemetry()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("occupation",  new Document().append("$exists", true));
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("email", tmp.get("email")).append("occupation", tmp.get("occupation")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting tags Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/*
+	 * 
+	 * get satisfaction telemetry
+	 * 
+	 */
+	public String getUserSatisfactionSurvey()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("rating",  new Document().append("$exists", true));
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				returnJson.add(new Document().append("email", tmp.get("email")).append("rating", tmp.get("rating")).append("comments", tmp.get("comments")).append("solutionType", tmp.get("solutionType")).
+						append("time", tmp.getDate("time")));
+			}
+			LOGGER.info("Got satisfaction Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting satisfaction Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	
 	
 	public boolean updateTagsForUser(String fileUrl, String newTag)
 	{
