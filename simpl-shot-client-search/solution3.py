@@ -6,12 +6,14 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-
+ip = "192.168.0.31"
 class TransWindow(QWidget,QPixmap):
-    def __init__(self,QPixmap,usr, main_window):
+    def __init__(self,QPixmap, main_window, user, pri):
         super(TransWindow, self).__init__()
         global usrnm
-        usrnm = usr
+        usrnm = user
+        global private
+        private = pri
         self.main_window = main_window
         self.layout = QGridLayout()
         self.setLayout(self.layout)
@@ -48,7 +50,7 @@ class TransWindow(QWidget,QPixmap):
         if event.pos().x() < self.origin.x() :
             origin_left= event.pos().x()
         if event.pos().y() <self.origin.y():
-            origin_top=event.pos().y()   
+            origin_top=event.pos().y()
         self.obj=QRect(origin_left,origin_top, diff,y_diff)   
         self.rubberBand.hide()
         self.hide()
@@ -56,8 +58,18 @@ class TransWindow(QWidget,QPixmap):
         px2.save(('temp_copy.jpg'))
         register_openers()
         ob = open("temp_copy.jpg","rb")
-        datagen, headers = multipart_encode({"attachment":ob,"USER":usrnm})
-        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
+
+
+        dict = {}
+        dict['username'] = str(usrnm)
+        if private:
+            dict['private'] = "TRUE"
+        else:
+            dict['private'] = "FALSE"
+
+        datagen, headers = multipart_encode({"attachment":ob,"email":dict['username'], "private":dict['private']})
+        print  dict
+        request = urllib2.Request('http://' + ip + ':8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         print "Thank you for your patience. You may continue using the tool."
@@ -66,9 +78,9 @@ class TransWindow(QWidget,QPixmap):
         
         
 class OptionsContainer(QWidget):
-    def __init__(self, main_window, usrnm):
-        global usr
-        usr = usrnm
+    def __init__(self, main_window, user):
+        global usrnm
+        usrnm = user
         QWidget.__init__(self)
         self.main_window = main_window
         self.layout = QGridLayout()
@@ -78,6 +90,7 @@ class OptionsContainer(QWidget):
         
         self.sa_show_bt = QPushButton("Show Area")
         self.sa_show_bt.setCheckable(True)
+        self.cb = QtGui.QCheckBox('Check if Private Snippet', self)
         
         self.sa_ul_bt = QPushButton("Start Clipping!")
         self.connect(self.sa_ul_bt, SIGNAL("clicked()"), self.select_area)
@@ -85,49 +98,74 @@ class OptionsContainer(QWidget):
         self.sa_ur_bt = QPushButton("Search History")
         self.connect(self.sa_ur_bt, SIGNAL("clicked()"), self.search_history)
         
+        self.layout.addWidget(self.cb,10,10,1,10)
         self.layout.addWidget(self.sa_ul_bt,20,10,1,10)
         self.layout.addWidget(self.sa_ur_bt,30,10,1,10)
-   
+        
     def search_history(self):
         print "Please type your Search Query."
-        self.task = SearchTab(self, usr)
+        self.task = SearchTab(self, usrnm)
+        
+    def show_preview(self):
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
+        all_urls = []
+        print "data returned"
+        print data_returned
+        l = literal_eval(data_returned)
+        temp=l[-1]['url']
+        temp2 = temp[0:4] + temp[5:]
+        all_urls.append(temp2)
+        self.task=Thumbnail(all_urls)
         
     def select_area(self):
+        if(self.cb.isChecked()):
+            private = True
+        else:
+            private = False
+        print "Private image:" , private
+        print "USERNAME:", usrnm
+
         print "select an area to snip"
         self.main_window.showMinimized()
         self.clicked  = False
         time.sleep(0.5)
         pixmap = QPixmap.grabWindow(QApplication.desktop().winId())
         print pixmap
-        self.tw = TransWindow(pixmap,usr,self.main_window)
+        self.tw = TransWindow(pixmap, self.main_window, usrnm, private)
         self.tw.mouse_press = False
         self.tw.show()        
-        #px2 = pixmap.copy(self.tw.obj)
-        #px2.save('ffff.jpg')
-                
 
 class SearchTab(QtGui.QWidget):
-    def __init__(self, main_window, usr):
-        global user
-        user = usr
+    def __init__(self, main_window, user):
+        global usrnm
+        usrnm = user
         QWidget.__init__(self)
         self.main_window = main_window
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        global qsbar
+        self.cb = QtGui.QCheckBox('Enable Cross Search', self)
+        self.layout.addWidget(self.cb,25,10,1,10)
         self.qsbar = QtGui.QLineEdit(self)
-        self.qsbar.move(50, 40)
-        self.qbtn = QPushButton('Search')
+        self.layout.addWidget(self.qsbar, 10, 10, 1, 10)
+        self.qbtn = QPushButton("Search")
+        self.qbtn.setCheckable(True)
+        self.layout.addWidget(self.qbtn, 20, 10, 1, 10)
         self.connect(self.qbtn, SIGNAL("clicked()"), self.search_results)
-        self.qbtn.move(30, 30)
-        self.layout.addWidget(self.qbtn)
         self.setGeometry(200, 200, 200, 200)
         self.setWindowTitle('Simple-Shot History')
         self.show()
 
     def search_results(self):
+        if(self.cb.isChecked()):
+            crosssearch = True
+        else:
+            crosssearch = False
+        print "Cross Search:" , crosssearch
         s = self.qsbar.text()
-        data_returned = urllib2.urlopen("http://localhost:8080/user/" + user + "/" + s + "/").read()#testUSER3 hardcoded
+        if crosssearch:
+        	    data_returned = urllib2.urlopen("http://" + ip + ":8080/user/crosssearch/" + usrnm + "/" + s + "/").read()
+        else:
+        	data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/" + s + "/").read()
         l = literal_eval(data_returned)        
         all_urls = []
         for each in l:
@@ -154,10 +192,6 @@ class Thumbnail(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout(self.widget)
         self.scrollarea.setWidget(self.widget)
         self.layout.setAlignment(QtCore.Qt.AlignHCenter)
-        #qbtn = QtGui.QPushButton('Quit', self)
-        #qbtn.clicked.connect(self.close)
-        #qbtn.resize(qbtn.sizeHint())
-        #qbtn.move(20, 20)
         for each in url:
             data = urllib2.urlopen(each).read()
             image = QtGui.QImage()
@@ -174,42 +208,220 @@ class Thumbnail(QtGui.QWidget):
         self.setWindowTitle('Simple-Shot')
         self.show()
         print "Thumbnail displayed"
+
+
+class userReview(QDialog):
+    def __init__(self, parent, user):
+        global usrnm
+        usrnm = user
+        global prnt
+        prnt = parent
+        super(userReview, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Please review \n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+
+
+        self.r1 = QRadioButton("1")
+        self.r2 = QRadioButton("2")
+        self.r3 = QRadioButton("3")
+        self.r4 = QRadioButton("4")
+        self.r5 = QRadioButton("5")
+        self.r5.setChecked(True)
+        layout.addWidget(self.r1)
+        layout.addWidget(self.r2)
+        layout.addWidget(self.r3)
+        layout.addWidget(self.r4)
+        layout.addWidget(self.r5)
+        self.qsbar = QtGui.QLineEdit(self)
+        layout.addWidget(self.qsbar)
+        self.setLayout(layout)
+        self.nu = QPushButton()
+        self.nu.setObjectName("submit")
+        self.nu.setText("Submit!")
+        layout.addWidget(self.nu)
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+
+    def button_click(self):
+        review = self.qsbar.text()
+        print "USER = ", usrnm
+        print "Review = ", review
+        if self.r1.isChecked():
+            rating = "1"
+        elif self.r2.isChecked():
+            rating = "2"
+        elif self.r3.isChecked():
+            rating = "3"
+        elif self.r4.isChecked():
+            rating = "4"
+        else:
+            rating = "5"
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION3").read()
+        self.close()
         
 class MainWindow(QMainWindow):
-    def __init__(self, usrnm):
+    def __init__(self, user):
+        global usrnm
+        usrnm = user
         QMainWindow.__init__(self,None)
         self.options = OptionsContainer(self, usrnm)
         self.setCentralWidget(self.options)
         self.arrow_icon = os.path.abspath(os.path.dirname(__file__)+"/cursor3.png")
         print "self.arrow_icon",self.arrow_icon
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Q:
-            sys.exit()
+        
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, 'Message',
+            "Do you want to review our app?", QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No, QtGui.QMessageBox.No)
 
+        if reply == QtGui.QMessageBox.Yes:
+            event.ignore()
+            window = userReview(self, usrnm)
+            window.show()
+        else:
+            event.accept()
+
+class DataForm(QDialog):
+    def __init__(self, parent,email):
+        super(DataForm, self).__init__(parent)
+        self.agreement=QLabel()
+        self.agreement.setText("\n Data Agreement Form\n")
+        layout = QFormLayout()
+        layout.addWidget(self.agreement)
+        self.setLayout(layout)
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        layout.addWidget(self.nu)
+        self.email=email
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        
+    def button_click(self):
+            self.close()
+            window = MainWindow(self.email)
+            window.show()
+            
+class SignUp_Form(QDialog):
+    def __init__(self, parent):
+        super(SignUp_Form, self).__init__(parent)
+        self.usnname = QLineEdit()
+        self.usnname.setObjectName("username")
+        self.usnname.setText("UserName")
+        self.passwd = QLineEdit()
+        self.passwd.setObjectName("password")
+        self.passwd.setText("Password")
+        self.em = QLineEdit()
+        self.em.setObjectName("Email")
+        self.em.setText("email")
+        self.age = QLineEdit()
+        self.age.setObjectName("age")
+        self.age.setText("Age")
+        self.sex = QLineEdit()
+        self.sex.setObjectName("Sex")
+        self.sex.setText("sex")
+        self.nu = QPushButton()
+        self.nu.setObjectName("next")
+        self.nu.setText("Next!")
+        self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
+        self.occ=QComboBox()
+        self.occ.addItem("Student")
+        self.occ.addItem("Employed")
+        print self.occ.currentText()
+        layout = QFormLayout()
+        layout.addWidget(self.usnname)
+        layout.addWidget(self.passwd)
+        layout.addWidget(self.em)
+        layout.addWidget(self.age)
+        layout.addWidget(self.sex)
+        layout.addWidget(self.occ)
+        layout.addWidget(self.nu)
+        
+        self.setLayout(layout)
+        
+    def button_click(self):
+            usrnm = self.usnname.text()
+            passwd = self.passwd.text()
+            email = self.em.text()
+            age = self.age.text()
+            if age=="Age":
+                age=0
+            sex = self.sex.text()
+            occ = self.occ.currentText()
+            dict={}
+            dict['userName']=str(usrnm)
+            dict['password']=str(passwd)
+            dict['email']=str(email)
+            dict['age']=int(age)
+            dict['sex']=str(sex)
+            dict['occupation']=str(occ)
+            print dict
+            
+            
+            ####method2 starts
+            #register_openers()
+            #datagen, headers = multipart_encode(dict)
+            #print datagen
+            #headers['Content-Type']='application/json'
+            #print headers
+            request = urllib2.Request('http://' + ip + ':8080/user/signup')
+            request.add_header('Content-Type','application/json')
+            ##print request
+            print urllib2.urlopen(request,json.dumps(dict)).read()
+            #######
+            self.close()
+            window = DataForm(self,email)
+            window.show()
+            
 class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
 
         self.le = QLineEdit()
-        self.le.setObjectName("username")
-        self.le.setText("TestUser")
-
+        self.le.setObjectName("email")
+        self.le.setText("email")
+        
+        self.pw = QLineEdit()
+        self.pw.setObjectName("password")
+        self.pw.setText("password")
+        
         self.pb = QPushButton()
         self.pb.setObjectName("login")
         self.pb.setText("Log In!") 
 
+        self.nu = QPushButton()
+        self.nu.setObjectName("new user")
+        self.nu.setText("New user!")
+        
         layout = QFormLayout()
         layout.addWidget(self.le)
+        layout.addWidget(self.pw)
         layout.addWidget(self.pb)
-
+        layout.addWidget(self.nu)
         self.setLayout(layout)
         self.connect(self.pb, SIGNAL("clicked()"),self.button_click)
+        self.connect(self.nu, SIGNAL("clicked()"),self.signup_form)
         self.setWindowTitle("Snippet Tool")
+        
     def button_click(self):
-        usrnm = self.le.text()
+        email = self.le.text()
+        passwd=self.pw.text()
         self.close()
-        print "Logged in as: ",usrnm
-        window = MainWindow(usrnm)
+        #print "Logged in as: ",usrnm
+        dict={}
+        dict['password']=str(passwd)
+        dict['email']=str(email)
+        request = urllib2.Request("http://" + ip + ":8080/user/login")
+        request.add_header('Content-Type','application/json')
+        print urllib2.urlopen(request,json.dumps(dict)).read()
+        window = MainWindow(email)
+        window.show()
+        
+    def signup_form(self):
+        #usrnm = self.le.text()
+        self.close()
+        #print "Logged in as: ",usrnm
+        window = SignUp_Form(self)
         window.show()
 
 
