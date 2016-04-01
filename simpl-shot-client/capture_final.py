@@ -8,7 +8,7 @@ from ast import literal_eval
 from poster.streaminghttp import register_openers
 from poster.encode import multipart_encode
 from PySide import QtGui, QtCore
-
+ip = "192.168.0.31"
 class TransWindow(QWidget,QPixmap):    
     def __init__(self,QPixmap,main_window, user, pri):
         global usrnm, private
@@ -68,7 +68,7 @@ class TransWindow(QWidget,QPixmap):
             dict['private'] = "FALSE"
         datagen, headers = multipart_encode({"attachment":ob,"email":dict['username'], "private":dict['private']})
         print  dict
-        request = urllib2.Request('http://localhost:8080/uploadService/file',datagen, headers)
+        request = urllib2.Request('http://' + ip + ':8080/uploadService/file',datagen, headers)
         print urllib2.urlopen(request).read()
         self.main_window.show()
         print "Thank you for your patience. You may continue using the tool."
@@ -107,7 +107,7 @@ class OptionsContainer(QWidget):
         self.sa_ur_share.hide()
    
     def show_history(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
         all_urls = []
         print "data returned"
         print data_returned
@@ -120,7 +120,7 @@ class OptionsContainer(QWidget):
         self.task = Thumbnail(all_urls)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://localhost:8080/user/TESTUSER3/").read()#testUSER3 hardcoded
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()
         all_urls = []
         print "data returned"
         print data_returned
@@ -224,6 +224,17 @@ class userReview(QDialog):
         review = self.qsbar.text()
         print "USER = ", usrnm
         print "Review = ", review
+        if self.r1.isChecked():
+            rating = "1"
+        elif self.r2.isChecked():
+            rating = "2"
+        elif self.r3.isChecked():
+            rating = "3"
+        elif self.r4.isChecked():
+            rating = "4"
+        else:
+            rating = "5"
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/" + "SOLUTION1-DESKTOPWITHOUTSERACH").read()
         self.close()
                 
 
@@ -256,13 +267,14 @@ class DataForm(QDialog):
     def __init__(self, parent,email):
         super(DataForm, self).__init__(parent)
         self.agreement=QLabel()
-        self.agreement.setText("\n Data Agreement Form\n")
+        self.agreement.setText("\n Privacy Policy Form\n 1) Any personal information collected from you while using this app, will remain confidential \n 2) Any private screenshots taken with this app will not be visible to anyone else. However the images will be stored on the cloud.\n3) Any public screenshots taken with the app will be visible to all users of the app. However they will not have access to your personal details")
+        self.setWindowTitle("Privacy Policy form")
         layout = QFormLayout()
         layout.addWidget(self.agreement)
         self.setLayout(layout)
         self.nu = QPushButton()
         self.nu.setObjectName("next")
-        self.nu.setText("Next!")
+        self.nu.setText("I have read and understood the privacy agreement and I agree")
         layout.addWidget(self.nu)
         self.email=email
         self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
@@ -295,8 +307,10 @@ class SignUp_Form(QDialog):
         self.nu.setText("Next!")
         self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
         self.occ=QComboBox()
-        self.occ.addItem("Student")
-        self.occ.addItem("Employed")
+        self.occupation=QLabel()
+        self.occupation.setText("Occupation :")
+        self.occ.addItem("Technical")
+        self.occ.addItem("Non-Technical")
         print self.occ.currentText()
         layout = QFormLayout()
         layout.addWidget(self.usnname)
@@ -304,9 +318,10 @@ class SignUp_Form(QDialog):
         layout.addWidget(self.em)
         layout.addWidget(self.age)
         layout.addWidget(self.sex)
+        layout.addWidget(self.occupation)
         layout.addWidget(self.occ)
         layout.addWidget(self.nu)
-        
+        self.setWindowTitle("Sign up")
         self.setLayout(layout)
         
     def button_click(self):
@@ -330,11 +345,15 @@ class SignUp_Form(QDialog):
             request = urllib2.Request('http://localhost:8080/user/signup')
             request.add_header('Content-Type','application/json')
             ##print request
-            print urllib2.urlopen(request,json.dumps(dict)).read()
+            response=urllib2.urlopen(request,json.dumps(dict)).read()
+            print response
             #######
-            self.close()
-            window = DataForm(self,email)
-            window.show()
+            if "Yes" in response:
+                self.close()
+                window = DataForm(self,email)
+                window.show()
+            else :
+                print "Try again"
             
 class Form(QDialog):
     def __init__(self, parent=None):
@@ -369,18 +388,25 @@ class Form(QDialog):
         self.setWindowTitle("Snippet Tool")
 
     def button_click(self):
+        import re
         email = self.le.text()
         passwd=self.pw.text()
-        self.close()
+        
         dict={}
         dict['password']=str(passwd)
         dict['email']=str(email)
         request = urllib2.Request('http://localhost:8080/user/login')
         request.add_header('Content-Type','application/json')
-        print urllib2.urlopen(request,json.dumps(dict)).read()
-        window = MainWindow(email)
-        window.show()
-
+        response=urllib2.urlopen(request,json.dumps(dict)).read()
+        #print response
+        if "Yes" in response:
+            #print dict(response)
+            window = MainWindow(email)
+            window.show()
+            self.close()
+        else :
+            print "Try again"    
+            
     def signup_form(self):
         self.close()
         window = SignUp_Form(self)
