@@ -3,6 +3,7 @@ package com.simplshot.mongo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -97,6 +98,7 @@ public class MongoUtil {
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
 			updateTelemetry(emailId,solutionType);
+			updateCrossSearchTelemetry(emailId,"Private-search",solutionType);
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
 			LOGGER.severe("Error Checking User");
@@ -131,6 +133,7 @@ public class MongoUtil {
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
 			updateTelemetry(emailId,solutionType);
+			updateCrossSearchTelemetry(emailId,"Private-search",solutionType);
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
 			LOGGER.severe("Error Checking User");
@@ -166,6 +169,7 @@ public class MongoUtil {
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
 			updateTelemetry(emailId,solutionType);
+			updateCrossSearchTelemetry(emailId,"Private-search",solutionType);
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
 			LOGGER.severe("Error Checking User");
@@ -295,6 +299,61 @@ public class MongoUtil {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param check if user exists
+	 * @return
+	 */
+	public int getUserAge(String email)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("email", email);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Document response = cur.first();
+			if(response != null){
+				LOGGER.info("Checking User with UserID Exists"+response.toJson());
+				return (int)response.get("age");
+			}
+		}catch(MongoException ex)
+		{
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return 25;
+	}
+	
+	/**
+	 * 
+	 * @param check if user exists
+	 * @return
+	 */
+	public String getUserOccupation(String email)
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		Document queryUser = new Document();
+		queryUser.put("email", email);
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Document response = cur.first();
+			if(response != null){
+				LOGGER.info("Checking User with UserID Exists"+response.toJson());
+				return response.getString("occupation");
+			}
+		}catch(MongoException ex)
+		{
+			LOGGER.severe("Error Checking User");
+		}finally{
+			client.close();
+		}
+		return "Technical";
+	}
+	
+	
 	
 	/**
 	 * Sign up 
@@ -390,7 +449,7 @@ public class MongoUtil {
 		return status;
 	}
 	
-	public boolean UpdateTagsUsageTelemetry(String solutionType)
+	public boolean UpdateTagsUsageTelemetry(String solutionType, String taskDone)
 	{
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
@@ -398,7 +457,7 @@ public class MongoUtil {
 		try{
 			Document insertStats = new Document();
 			insertStats.put("solutionType", solutionType);
-			insertStats.put("update-tags", "Tag-Update");
+			insertStats.put("update-tags", taskDone);
 			insertStats.put("time", new Date());
 			database.getCollection(mongoTelemtryCollection).insertOne(insertStats);
 			status = true;
@@ -443,10 +502,25 @@ public class MongoUtil {
 			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("solutionType", tmp.get("solutionType")).
-						append("time", tmp.getDate("time")));
+				if(tmp.get("solutionType") != null)
+				{
+					if(solutionMap.get(tmp.get("solutionType")) != null)
+					{
+						solutionMap.put((String)tmp.get("solutionType"),solutionMap.get(tmp.get("solutionType"))+1);
+					}else
+					{
+						solutionMap.put((String)tmp.get("solutionType"),1);
+					}
+				}
+			}
+			Iterator<String> mapIterator = solutionMap.keySet().iterator();
+			while(mapIterator.hasNext())
+			{
+				String solType = mapIterator.next();
+				returnJson.add(new Document().append("solutionType",solType).append("count",solutionMap.get(solType)));	
 			}
 			LOGGER.info("Got Solution Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
@@ -468,15 +542,31 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		Document queryUser = new Document();
-		queryUser.put("cross-search-Param", "Cross-search");
+		queryUser.put("cross-search-Param", new Document().append("$exists", true));
 		try{
 			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("solutionType", tmp.get("solutionType")).
-						append("time", tmp.getDate("time")));
+				String solkey = (String)tmp.get("cross-search-Param");
+				solkey = solkey==null?"Private-search":solkey;
+				if(solutionMap.get(solkey) != null)
+				{
+					solutionMap.put(solkey,solutionMap.get(solkey)+1);
+				}else
+				{
+					solutionMap.put(solkey,1);
+				}
+			}
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				key = key==null?"Private-search":key;
+				returnJson.add(new Document().append("Tasks", key).
+						append("Count", solutionMap.get(key)));
 			}
 			LOGGER.info("Got cross Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
@@ -498,15 +588,28 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		Document queryUser = new Document();
-		queryUser.put("update-tags", "Tag-Update");
+		queryUser.put("update-tags", new Document().append("$exists", true));
 		try{
-			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("solutionType", tmp.get("solutionType")).
-						append("time", tmp.getDate("time")));
+				if(solutionMap.get(tmp.get("update-tags")) != null)
+				{
+					solutionMap.put((String)tmp.get("update-tags"),solutionMap.get(tmp.get("update-tags"))+1);
+				}else
+				{
+					solutionMap.put((String)tmp.get("update-tags"), 1);
+				}
+			}
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				returnJson.add(new Document().append("Tasks", key).
+						append("Count", solutionMap.get(key)));
 			}
 			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
@@ -530,14 +633,18 @@ public class MongoUtil {
 		Document queryUser = new Document();
 		queryUser.put("age",  new Document().append("$exists", true));
 		try{
-			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			int avgAge = 0;
+			int count = 1;
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("age", tmp.get("age")).
-						append("time", tmp.getDate("time")));
+				returnJson.add(new Document().append("email", tmp.get("email")).append("age", tmp.get("age")));
+				avgAge = avgAge + (Integer) tmp.get("age");
+				count++;
 			}
+			returnJson.add(new Document().append("AverageAge", ""+avgAge/count));
 			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
 		}catch(MongoException ex){;
@@ -560,13 +667,12 @@ public class MongoUtil {
 		Document queryUser = new Document();
 		queryUser.put("occupation",  new Document().append("$exists", true));
 		try{
-			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("occupation", tmp.get("occupation")).
-						append("time", tmp.getDate("time")));
+				returnJson.add(new Document().append("email", tmp.get("email")).append("occupation", tmp.get("occupation")));
 			}
 			LOGGER.info("Got Tags Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
@@ -577,6 +683,7 @@ public class MongoUtil {
 		}
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
+	
 	
 	/*
 	 * 
@@ -590,11 +697,13 @@ public class MongoUtil {
 		Document queryUser = new Document();
 		queryUser.put("rating",  new Document().append("$exists", true));
 		try{
-			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
+			int count = 1;
 			while(iter.hasNext()){
 				Document tmp = iter.next();
+				
 				returnJson.add(new Document().append("email", tmp.get("email")).append("rating", tmp.get("rating")).append("comments", tmp.get("comments")).append("solutionType", tmp.get("solutionType")).
 						append("time", tmp.getDate("time")));
 			}
@@ -607,8 +716,142 @@ public class MongoUtil {
 		}
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
+
+	/*
+	 * 
+	 * get satisfaction telemetry
+	 * 
+	 */
+	public String getUserSatisfactionSurveyLikeSoution()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("rating",  new Document().append("$exists", true));
+		try{
+			int count = 0;
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				if(solutionMap.get(tmp.get("solutionType")) != null)
+				{
+					solutionMap.put((String)tmp.get("solutionType"),solutionMap.get((String)tmp.get("solutionType"))+Integer.parseInt((String)tmp.get("rating")));
+				}else
+				{
+					solutionMap.put((String)tmp.get("solutionType"), Integer.parseInt((String)tmp.get("rating")));
+				}
+				count++;
+			}
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				returnJson.add(new Document().append("solutionType", key).
+						append("Avg-Rating", solutionMap.get(key)/count));
+			}
+			LOGGER.info("Got satisfaction Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting satisfaction Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
 	
 	
+	/*
+	 * 
+	 * get satisfaction telemetry
+	 * 
+	 */
+	public String getUserSatisfactionSurveywithAvgAge()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("rating",  new Document().append("$exists", true));
+		try{
+			int count = 0;
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				if(solutionMap.get(tmp.get("solutionType")) != null)
+				{
+					solutionMap.put((String)tmp.get("solutionType"),solutionMap.get((String)tmp.get("solutionType"))+getUserAge((String)tmp.get("email")));
+				}else
+				{
+					solutionMap.put((String)tmp.get("solutionType"), getUserAge((String)tmp.get("email")));
+				}
+				count++;
+			}
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				returnJson.add(new Document().append("solutionType", key).
+						append("Avg-Age", solutionMap.get(key)/count));
+			}
+			LOGGER.info("Got satisfaction Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting satisfaction Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	/*
+	 * 
+	 * get satisfaction telemetry
+	 * 
+	 */
+	public String getUserSatisfactionSurveywithOccupation()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("rating",  new Document().append("$exists", true));
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				String occupation = getUserOccupation((String)tmp.get("email"));
+				if(solutionMap.get((String)tmp.get("solutionType")+occupation) != null)
+				{
+					solutionMap.put(tmp.get("solutionType")+occupation,solutionMap.get((String)tmp.get("solutionType")+occupation)+1);
+				}else
+				{
+					solutionMap.put(tmp.get("solutionType")+occupation,1);
+				}
+			}
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				returnJson.add(new Document().append("solutionType-Occupation", key).
+						append("Count", solutionMap.get(key)));
+			}
+			LOGGER.info("Got satisfaction Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting satisfaction Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+		
 	
 	public boolean updateTagsForUser(String fileUrl, String newTag)
 	{
@@ -673,7 +916,7 @@ public class MongoUtil {
 		}
 		return status;
 	}
-	
+
 	public static void main(String[] args) {
 		AppStart.loadProperties();
 		//MongoUtil.getInstance().dropDatabase();

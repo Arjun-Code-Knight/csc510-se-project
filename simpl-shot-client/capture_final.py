@@ -120,7 +120,7 @@ class OptionsContainer(QWidget):
         self.task = Thumbnail(all_urls)
         
     def show_preview(self):
-        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/TESTUSER3/").read()
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/search/" + usrnm + "/").read()
         all_urls = []
         print "data returned"
         print data_returned
