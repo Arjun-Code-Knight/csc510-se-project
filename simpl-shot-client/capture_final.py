@@ -256,7 +256,8 @@ class DataForm(QDialog):
     def __init__(self, parent,email):
         super(DataForm, self).__init__(parent)
         self.agreement=QLabel()
-        self.agreement.setText("\n Data Agreement Form\n")
+        self.agreement.setText("\n Privacy Policy Form\n this")
+        
         layout = QFormLayout()
         layout.addWidget(self.agreement)
         self.setLayout(layout)
