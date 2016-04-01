@@ -307,6 +307,8 @@ class SignUp_Form(QDialog):
         self.nu.setText("Next!")
         self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
         self.occ=QComboBox()
+        self.occupation=QLabel()
+        self.occupation.setText("Occupation :")
         self.occ.addItem("Technical")
         self.occ.addItem("Non-Technical")
         print self.occ.currentText()
@@ -316,9 +318,10 @@ class SignUp_Form(QDialog):
         layout.addWidget(self.em)
         layout.addWidget(self.age)
         layout.addWidget(self.sex)
+        layout.addWidget(self.occupation)
         layout.addWidget(self.occ)
         layout.addWidget(self.nu)
-        
+        self.setWindowTitle("Sign up")
         self.setLayout(layout)
         
     def button_click(self):
