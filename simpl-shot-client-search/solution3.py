@@ -286,13 +286,14 @@ class DataForm(QDialog):
     def __init__(self, parent,email):
         super(DataForm, self).__init__(parent)
         self.agreement=QLabel()
-        self.agreement.setText("\n Data Agreement Form\n")
+        self.agreement.setText("\n Privacy Policy Form\n 1) Any personal information collected from you while using this app, will remain confidential \n 2) Any private screenshots taken with this app will not be visible to anyone else. However the images will be stored on the cloud.\n3) Any public screenshots taken with the app will be visible to all users of the app. However they will not have access to your personal details\n")
+        self.setWindowTitle("Privacy Policy form")
         layout = QFormLayout()
         layout.addWidget(self.agreement)
         self.setLayout(layout)
         self.nu = QPushButton()
         self.nu.setObjectName("next")
-        self.nu.setText("Next!")
+        self.nu.setText("I have read and understood the privacy agreement and I agree")
         layout.addWidget(self.nu)
         self.email=email
         self.connect(self.nu, SIGNAL("clicked()"),self.button_click)
@@ -367,11 +368,15 @@ class SignUp_Form(QDialog):
             request = urllib2.Request('http://' + ip + ':8080/user/signup')
             request.add_header('Content-Type','application/json')
             ##print request
-            print urllib2.urlopen(request,json.dumps(dict)).read()
+            response=urllib2.urlopen(request,json.dumps(dict)).read()
             #######
-            self.close()
-            window = DataForm(self,email)
-            window.show()
+            if "Yes" in response:
+                self.close()
+                window = DataForm(self,email)
+                window.show()
+            else :
+                print "Try again"
+            
             
 class Form(QDialog):
     def __init__(self, parent=None):
@@ -406,16 +411,22 @@ class Form(QDialog):
     def button_click(self):
         email = self.le.text()
         passwd=self.pw.text()
-        self.close()
+        #self.close()
         #print "Logged in as: ",usrnm
         dict={}
         dict['password']=str(passwd)
         dict['email']=str(email)
         request = urllib2.Request("http://" + ip + ":8080/user/login")
         request.add_header('Content-Type','application/json')
-        print urllib2.urlopen(request,json.dumps(dict)).read()
-        window = MainWindow(email)
-        window.show()
+        response=urllib2.urlopen(request,json.dumps(dict)).read()
+        if "Yes" in response:
+            #print dict(response)
+            window = MainWindow(email)
+            window.show()
+            self.close()
+        else :
+            print "Try again" 
+        
         
     def signup_form(self):
         #usrnm = self.le.text()
