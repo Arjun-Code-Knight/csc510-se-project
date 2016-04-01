@@ -1,0 +1,21 @@
+<!-- <div class = "modalWindow">
+  <ul>
+    <li ng-repeat="i in getNumber(number)">
+      <i class="fa fa-star-o"></i>
+    </li>
+  </ul>
+</div> -->
+<div class = "header">
+  <div class = "title">{{title}}</div>
+  <header-detail></header-detail>
+</div>
+<div class = "body body2">
+  <div class = "header2">Feedback</div>
+  <ul id = "stars" class = "stars">
+    <li class = "star" ng-repeat = "i in number" ng-click="highlightStars($event)"><i class="fa fa-star-o"></i></li>
+  </ul>
+  <div class = "feedback">
+    <textarea placeholder="Let us know about your experience!" ng-model = "fb"></textarea>
+  </div>
+  <button class="button-large pure-button pure-button-primary userNameSubmit formSubmitButton" ng-click="submit()">{{submitText}}</button>
+</div>
