@@ -145,8 +145,8 @@ class OptionsContainer(QWidget):
         self.tw = TransWindow(pixmap, self.main_window, usrnm, private)
         self.tw.mouse_press = False
         self.tw.show()
-        px2 = pixmap.copy(self.tw.obj)
-        px2.save('temp_copy.jpg')
+        #px2 = pixmap.copy(self.tw.obj)
+        #px2.save('temp_copy.jpg')
         self.sa_ur_share.show()        
         
 class Thumbnail(QtGui.QWidget):
