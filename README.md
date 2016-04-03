@@ -25,6 +25,16 @@ Submission for March 1st Milestones</br>
 [milestone3 - "Integrating server and client code"] 
 (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones/integrating%20client%20and%20server%20side%20code)<br/>
 
+#Telemetry:
+The server keeps track of the usage and solutions being used across by users. We can mine the data from this to determine trends and usage patterns of the solutions.
+
+
+#Helpful links - April Deliverables : Tuesday April 12th Slot 1
+1. [Issues Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/issues)
+2. [Milestones Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones)
+3. [Contributors Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/graphs/contributors)
+4. [Presentation Link](Place holder)
+5. [Project Report] (Place Holder)
 
 #Quick Links:
 a. [Server Code base:] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-server)
@@ -35,14 +45,3 @@ c. [Solution2]  (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/mas
 <p>Chrome extension to help take screenshots</p>
 d. [Solution3] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/master/simpl-shot-client-search) :
 <p>Desktop client with ability to take screenshots and search based on the contents in the image</p>
-
-#Telemetry:
-The server keeps track of the usage and solutions being used across by users. We can mine the data from this to determine trends and usage patterns of the solutions.
-
-
-#Helpful links:
-1. [Issues Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/issues)
-2. [Milestones Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones)
-3. [Contributors Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/graphs/contributors)
-4. [Presentation Link](Place holder)
-5. [Project Report] (Place Holder)
