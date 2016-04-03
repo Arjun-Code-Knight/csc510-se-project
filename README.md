@@ -38,3 +38,11 @@ d. [Solution3] (https://github.com/Arjun-Code-Knight/csc510-se-project/tree/mast
 
 #Telemetry:
 The server keeps track of the usage and solutions being used across by users. We can mine the data from this to determine trends and usage patterns of the solutions.
+
+
+#Helpful links:
+1. [Issues Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/issues)
+2. [Milestones Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones)
+3. [Contributors Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/graphs/contributors)
+4. [Presentation Link](Place holder)
+5. [Project Report] (Place Holder)
