@@ -61,7 +61,7 @@ public class MongoUtil {
 		insertUser.put("email", emailId);
 		insertUser.put("url", link);
 		insertUser.put("tags", ocrWords);
-		insertUser.put("private", privateData);
+		insertUser.put("private", privateData.toLowerCase());
 		insertUser.put("solutionType", solutionType);
 		LOGGER.info("Adding user to DB "+insertUser.toJson());
 		try{
