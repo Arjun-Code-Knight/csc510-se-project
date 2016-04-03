@@ -17,6 +17,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.util.JSON;
 import com.simplshot.server.AppStart;
+import com.simplshot.server.UserService;
 
 public class MongoUtil {
 	
@@ -50,7 +51,7 @@ public class MongoUtil {
 		initilaized = true;
 	}
 	
-	public boolean addLinkToUser(ObjectId _id, String emailId, String link, String ocrWords, String privateData){
+	public boolean addLinkToUser(ObjectId _id, String emailId, String link, String ocrWords, String privateData,String solutionType){
 		boolean status = false;
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
@@ -60,6 +61,7 @@ public class MongoUtil {
 		insertUser.put("url", link);
 		insertUser.put("tags", ocrWords);
 		insertUser.put("private", privateData);
+		insertUser.put("solutionType", solutionType);
 		LOGGER.info("Adding user to DB "+insertUser.toJson());
 		try{
 			database.getCollection(mongoCollection).insertOne(insertUser);
@@ -85,6 +87,10 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
 		queryUser.put("email", emailId);
+		if(solutionType.equalsIgnoreCase(UserService.SOLUTION1)||solutionType.equalsIgnoreCase(UserService.SOLUTION3))
+			queryUser.put("solutionType","non-chrome");	
+		else
+			queryUser.put("solutionType","chrome");
 		queryUser.put("url", new Document().append("$exists", true));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{
@@ -117,6 +123,10 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
 		queryUser.put("email", emailId);
+		if(solutionType.equalsIgnoreCase(UserService.SOLUTION1)||solutionType.equalsIgnoreCase(UserService.SOLUTION3))
+			queryUser.put("solutionType","non-chrome");	
+		else
+			queryUser.put("solutionType","chrome");
 		queryUser.put("url", new Document().append("$exists", true));
 		LOGGER.info("Request UserID details -- "+JSON.serialize(queryUser));
 		MongoDatabase database = client.getDatabase(mongoDB);
@@ -152,6 +162,10 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
 		queryUser.put("email", emailId);
+		if(solutionType.equalsIgnoreCase(UserService.SOLUTION1)||solutionType.equalsIgnoreCase(UserService.SOLUTION3))
+			queryUser.put("solutionType","non-chrome");	
+		else
+			queryUser.put("solutionType","chrome");
 		queryUser.put("url", new Document().append("$exists", true));
 		queryUser.put("tags", new Document().append("$regex", ".*"+searchParam+".*").append("$options", "i"));
 		LOGGER.info("Request UserID details -- "+JSON.serialize(queryUser));
@@ -187,6 +201,10 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		Document queryUser = new Document();
 		queryUser.put("url", new Document().append("$exists", true));
+		if(solutionType.equalsIgnoreCase(UserService.SOLUTION1)||solutionType.equalsIgnoreCase(UserService.SOLUTION3))
+			queryUser.put("solutionType","non-chrome");	
+		else
+			queryUser.put("solutionType","chrome");
 		queryUser.put("private", "false");
 		queryUser.put("tags", new Document().append("$regex", ".*"+searchParam+".*").append("$options", "i"));
 		LOGGER.info("Request UserID details -- "+JSON.serialize(queryUser));
@@ -690,7 +708,7 @@ public class MongoUtil {
 		//MongoUtil.getInstance().createUser(newuser);
 		}
 		ObjectId _id = new ObjectId();
-		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1","YES");
+		MongoUtil.getInstance().addLinkToUser(_id,"TESTUSER1","http://localhost:1","tag1","YES","chrome");
 		MongoUtil.getInstance().getAllUsers();
 		//MongoUtil.getInstance().checkIfUserExists("Testuser");
 		//ObjectId _id = new ObjectId();
