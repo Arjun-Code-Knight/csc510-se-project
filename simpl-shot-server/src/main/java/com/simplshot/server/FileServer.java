@@ -79,7 +79,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,extracts,privateData);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,extracts,privateData,"non-chrome");/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
@@ -113,7 +113,7 @@ public class FileServer {
 				return Response.status(500).entity(ERROR).build();
 			}
 			/*Upload and get link*/
-			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,"",privateData);/*url*/
+			MongoUtil.getInstance().addLinkToUser(mongoId,emailId,awsFileUrl,"",privateData,"chrome");/*url*/
 			return Response.status(200).entity(SUCCESS).build();
 		}else
 		{
