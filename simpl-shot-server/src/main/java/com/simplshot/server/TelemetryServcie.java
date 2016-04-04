@@ -28,11 +28,27 @@ public class TelemetryServcie {
 	 *
 	 */
 	@GET	
-	@Path("/getusagestats/")
+	@Path("/getprivateusagestats/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getprivateStatistics()
+	{
+		String responseFromMongo = mongoUtil.getUsageStatistics();
+		LOGGER.info("Get usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	/*
+	 * 
+	 * Get usage statistics
+	 * count of which solution is widely used
+	 *
+	 */
+	@GET	
+	@Path("/getxusagestats/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getUsageStatistics()
 	{
-		String responseFromMongo = mongoUtil.getUsageStatistics();
+		String responseFromMongo = mongoUtil.getXStatistics();
 		LOGGER.info("Get usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}
@@ -58,11 +74,11 @@ public class TelemetryServcie {
 	 * 
 	 */
 	@GET	
-	@Path("/getxsearchstats/")/*which solution is being used for cross search- pivate search vs Xsearch*/ 
+	@Path("/getsearchstats/")/*which solution is being used for cross search- pivate search vs Xsearch*/ 
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getCrossSearchUsage()
 	{
-		String responseFromMongo = mongoUtil.getxStatistics();
+		String responseFromMongo = mongoUtil.getsearchStatistics();
 		LOGGER.info("Get usage statistics");
 		return Response.status(SUCCESS).entity(responseFromMongo).build();
 	}

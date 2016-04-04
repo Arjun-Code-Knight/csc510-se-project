@@ -517,7 +517,49 @@ public class MongoUtil {
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
 		try{
-			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find();
+			Document queryUser = new Document();
+			queryUser.put("cross-search-Param", "Private-search");
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);			
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				if(tmp.get("solutionType") != null)
+				{
+					if(solutionMap.get(tmp.get("solutionType")) != null)
+					{
+						solutionMap.put((String)tmp.get("solutionType"),solutionMap.get(tmp.get("solutionType"))+1);
+					}else
+					{
+						solutionMap.put((String)tmp.get("solutionType"),1);
+					}
+				}
+			}
+			Iterator<String> mapIterator = solutionMap.keySet().iterator();
+			while(mapIterator.hasNext())
+			{
+				String solType = mapIterator.next();
+				returnJson.add(new Document().append("solutionType",solType).append("count",solutionMap.get(solType)));	
+			}
+			LOGGER.info("Got Solution Usage Statistics -- "+JSON.serialize(returnJson));
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting solution usage Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+	
+	public String getXStatistics()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		try{
+			Document queryUser = new Document();
+			queryUser.put("cross-search-Param", "Cross-search");
+			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);			
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
 			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
@@ -555,7 +597,7 @@ public class MongoUtil {
 	 * Which solution, they use cross search more
 	 * 
 	 */
-	public String getxStatistics()
+	public String getsearchStatistics()
 	{
 		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
 		MongoDatabase database = client.getDatabase(mongoDB);
@@ -721,7 +763,6 @@ public class MongoUtil {
 			int count = 1;
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				
 				returnJson.add(new Document().append("email", tmp.get("email")).append("rating", tmp.get("rating")).append("comments", tmp.get("comments")).append("solutionType", tmp.get("solutionType")).
 						append("time", tmp.getDate("time")));
 			}
@@ -747,28 +788,44 @@ public class MongoUtil {
 		Document queryUser = new Document();
 		queryUser.put("rating",  new Document().append("$exists", true));
 		try{
-			int count = 0;
+			int sol1Count = 0;
+			int sol2Count = 0;
+			int sol3Count = 0;
 			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
 			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				if(solutionMap.get(tmp.get("solutionType")) != null)
+				if(solutionMap.get((String)tmp.get("solutionType")) != null)
 				{
 					solutionMap.put((String)tmp.get("solutionType"),solutionMap.get((String)tmp.get("solutionType"))+Integer.parseInt((String)tmp.get("rating")));
 				}else
 				{
 					solutionMap.put((String)tmp.get("solutionType"), Integer.parseInt((String)tmp.get("rating")));
 				}
-				count++;
+				if(((String)tmp.get("solutionType")).equalsIgnoreCase(UserService.SOLUTION1)) sol1Count++;
+				if(((String)tmp.get("solutionType")).equalsIgnoreCase(UserService.SOLUTION2)) sol2Count++;
+				if(((String)tmp.get("solutionType")).equalsIgnoreCase(UserService.SOLUTION3)) sol3Count++;
 			}
+			System.out.println("Sol1 "+sol1Count);
+			System.out.println("Sol2 "+sol2Count);
+			System.out.println("Sol3 "+sol3Count);
+			
 			Iterator<String> keySet = solutionMap.keySet().iterator();
 			while(keySet.hasNext())
 			{
 				String key = keySet.next();
-				returnJson.add(new Document().append("solutionType", key).
-						append("Avg-Rating", solutionMap.get(key)/count));
+				if(key.equalsIgnoreCase(UserService.SOLUTION1))
+					returnJson.add(new Document().append("solutionType", key).
+							append("Avg-Rating", (solutionMap.get(key)/sol1Count)));
+				else if(key.equalsIgnoreCase(UserService.SOLUTION2))
+					returnJson.add(new Document().append("solutionType", key).
+							append("Avg-Rating", (solutionMap.get(key)/sol2Count)));
+				else if(key.equalsIgnoreCase(UserService.SOLUTION3))
+					returnJson.add(new Document().append("solutionType", key).
+							append("Avg-Rating", (solutionMap.get(key)/sol3Count)));
+				System.out.println("key "+key+" Avg-Rating "+solutionMap.get(key));
 			}
 			LOGGER.info("Got satisfaction Usage Statistics -- "+JSON.serialize(returnJson));
 			return JSON.serialize(returnJson);
