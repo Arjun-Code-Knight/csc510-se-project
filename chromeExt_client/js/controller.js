@@ -142,7 +142,7 @@ app.controller('SignUpControl', ['$scope', '$routeParams','$location','$http',
           email = $scope.email;
           $http({
             method: 'POST',
-            url: 'http://localhost:8080/user/signup/',
+            url: 'http://192.168.0.31:8080/user/signup/',
             data: obj
           }).then(function successCallback(response) {
             delete obj.age;
@@ -181,7 +181,7 @@ app.controller('LogInControl', ['$scope', '$routeParams','$location','$http',
                     };
           $http({
             method: 'POST',
-            url: 'http://localhost:8080/user/login/',
+            url: 'http://192.168.0.31:8080/user/login/',
             data: obj
           }).then(function successCallback(response) {
             if(response.data.success == "Yes") {
@@ -212,7 +212,7 @@ app.controller('HistoryControl', ['$scope', '$routeParams','$location','$http',
     $scope.email = email;
     $scope.url;
     $scope.userData
-    $http.get('http://localhost:8080/user/search/chrome/'+$scope.email).success(function(data) {
+    $http.get('http://192.168.0.31:8080/user/search/chrome/'+$scope.email).success(function(data) {
         $scope.userData = data;
     });
 
@@ -231,10 +231,12 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
 		$scope.userName = userName;
     $scope.enteredTag;
     $scope.tagList = new Array();
-    var arr = currTagList.split('|');
-    for(var i = 0; i < arr.length; i++) {
-      if(arr[i] != '') {
-          $scope.tagList.push(arr[i]);
+    if(currTagList) {
+      var arr = currTagList.split('|');
+      for(var i = 0; i < arr.length; i++) {
+        if(arr[i] != '') {
+            $scope.tagList.push(arr[i]);
+        }
       }
     }
     $scope.imageSrc = currImage;
@@ -249,7 +251,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://localhost:8080/uploadService/chrome/tags',
+        url: 'http://192.168.0.31:8080/uploadService/chrome/tags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.push($scope.enteredTag);
@@ -266,7 +268,7 @@ app.controller('ImageControl', ['$scope', '$routeParams','$location','$http',
       };
       $http({
         method: 'POST',
-        url: 'http://localhost:8080/uploadService/chrome/deletetags',
+        url: 'http://192.168.0.31:8080/uploadService/chrome/deletetags',
         data: formData
       }).then(function successCallback(response) {
         $scope.tagList.splice(data.$index,1);
@@ -296,14 +298,17 @@ app.controller('SearchControl', ['$scope', '$routeParams','$location','$http',
       } else {
         searchType = "search";
       }
-      $http.get('http://localhost:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
+      $http.get('http://192.168.0.31:8080/user/'+searchType+'/chrome/'+$scope.email+'/'+$scope.enteredTag).success(function(data) {
           $scope.userData = data;
+          currImage = data.x.url;
+          currTagList = data.x.tags;
       });
     }
 
 
     $scope.expandImage = function(data) {
       currImage = data.x.url;
+      currTagList = data.x.tags;
       $location.url('/image');
     }
 	}
@@ -328,8 +333,8 @@ app.controller('FeedbackControl', ['$scope', '$routeParams','$location','$http',
       $scope.index = this.$index;
     }
     $scope.submit = function() {
-      var rating = $scope.index+1;
-      $http.get('http://localhost:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
+      var rating = 6-($scope.index+1);
+      $http.get('http://192.168.0.31:8080/user/usersatisfaction/'+email+'/'+rating+'/'+$scope.fb+'/'+'SOLUTION2-CHROME').success(function(data) {
         $location.url('/');
       });
     }
