@@ -42,12 +42,11 @@ function uploadFile(c) {
   image1.src = c;
   var dataUrl1 = c.replace(/^data:image\/(png|jpeg);base64,/, "");
 
-  //console.log(c);
   formData.append("email", userEmail);
   formData.append("private", picType);
   formData.append("attachment", dataUrl1);
 
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:8080/uploadService/chrome/file");
+  xhr.open("POST", "http://192.168.0.31:8080/uploadService/chrome/file");
   xhr.send(formData);
 }
