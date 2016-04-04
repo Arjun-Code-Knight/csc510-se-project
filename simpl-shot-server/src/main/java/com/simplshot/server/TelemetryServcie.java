@@ -84,6 +84,20 @@ public class TelemetryServcie {
 	}
 	
 	/* 
+	 * Get usage statistics on age
+	 * 
+	 */
+	@GET	
+	@Path("/getimagestats/")/* ratings*/
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getImageStatistics()
+	{
+		String responseFromMongo = mongoUtil.getImageUploadedStats();
+		LOGGER.info("Get Image usage statistics");
+		return Response.status(SUCCESS).entity(responseFromMongo).build();
+	}
+	
+	/* 
 	 * Get usage statistics on occupation
 	 * 
 	 */

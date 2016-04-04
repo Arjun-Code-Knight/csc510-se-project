@@ -743,8 +743,51 @@ public class MongoUtil {
 		}
 		return JSON.serialize(Collections.EMPTY_LIST);
 	}
-	
-	
+
+	/*
+	 * 
+	 * get image stats
+	 * 
+	 */
+	public String getImageUploadedStats()
+	{
+		MongoClient client = new MongoClient(mongoHost, Integer.parseInt(mongoPort));
+		MongoDatabase database = client.getDatabase(mongoDB);
+		Document queryUser = new Document();
+		queryUser.put("url",  new Document().append("$exists", true));
+		try{
+			FindIterable<Document> cur = database.getCollection(mongoCollection).find(queryUser);
+			Iterator<Document> iter = cur.iterator();
+			List<Document> returnJson = new ArrayList<Document>();
+			HashMap<String,Integer> solutionMap = new HashMap<String,Integer>(); 
+			while(iter.hasNext()){
+				Document tmp = iter.next();
+				if(solutionMap.get((String)tmp.get("private")) != null)
+				{
+					solutionMap.put((String)tmp.get("private"),solutionMap.get((String)tmp.get("private"))+1);
+				}else
+				{
+					solutionMap.put((String)tmp.get("private"), 1);
+				}
+			}
+			LOGGER.info("Got image upload Usage Statistics -- "+JSON.serialize(returnJson));
+			Iterator<String> keySet = solutionMap.keySet().iterator();
+			while(keySet.hasNext())
+			{
+				String key = keySet.next();
+				returnJson.add(new Document().append("private-image", key).
+						append("count",solutionMap.get(key)));
+			}
+			return JSON.serialize(returnJson);
+		}catch(MongoException ex){;
+			LOGGER.severe("Error getting image upload Statistics");
+		}finally{
+			client.close();
+		}
+		return JSON.serialize(Collections.EMPTY_LIST);
+	}
+
+		
 	/*
 	 * 
 	 * get satisfaction telemetry
@@ -760,7 +803,6 @@ public class MongoUtil {
 			FindIterable<Document> cur = database.getCollection(mongoTelemtryCollection).find(queryUser);
 			Iterator<Document> iter = cur.iterator();
 			List<Document> returnJson = new ArrayList<Document>();
-			int count = 1;
 			while(iter.hasNext()){
 				Document tmp = iter.next();
 				returnJson.add(new Document().append("email", tmp.get("email")).append("rating", tmp.get("rating")).append("comments", tmp.get("comments")).append("solutionType", tmp.get("solutionType")).
