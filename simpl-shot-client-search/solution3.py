@@ -264,7 +264,7 @@ class userReview(QDialog):
         else:
             rating = "5"
         review = urllib2.quote(review)
-        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/SOLUTION1-DESKTOPWITHOUTSEARCH/").read()
+        data_returned = urllib2.urlopen("http://" + ip + ":8080/user/usersatisfaction/" + usrnm + "/" + rating + "/" + review + "/SOLUTION3-DESKTOPWITHSEARCH/").read()
         self.close()
         
 class MainWindow(QMainWindow):
@@ -327,7 +327,7 @@ class SignUp_Form(QDialog):
         self.age.setText("Age")
         self.sex = QLineEdit()
         self.sex.setObjectName("Sex")
-        self.sex.setText("sex")
+        self.sex.setText("sex- enter F or M")
         self.nu = QPushButton()
         self.nu.setObjectName("next")
         self.nu.setText("Next!")

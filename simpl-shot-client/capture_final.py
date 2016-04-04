@@ -302,7 +302,7 @@ class SignUp_Form(QDialog):
         self.age.setText("Age")
         self.sex = QLineEdit()
         self.sex.setObjectName("Sex")
-        self.sex.setText("sex")
+        self.sex.setText("sex- enter F or M")
         self.nu = QPushButton()
         self.nu.setObjectName("next")
         self.nu.setText("Next!")
