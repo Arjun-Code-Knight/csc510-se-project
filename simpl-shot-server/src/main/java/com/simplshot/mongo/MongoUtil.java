@@ -179,7 +179,7 @@ public class MongoUtil {
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")));
+				returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")).append("tags", tmp.get("tags")));
 			}
 			LOGGER.info("Found User with UserID details -- "+JSON.serialize(returnJson));
 			updateTelemetry(emailId,solutionType);
@@ -219,7 +219,10 @@ public class MongoUtil {
 			List<Document> returnJson = new ArrayList<Document>();
 			while(iter.hasNext()){
 				Document tmp = iter.next();
-				returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")));
+				if(solutionType.equalsIgnoreCase(UserService.SOLUTION2))
+					returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")).append("tags", tmp.get("tags")));
+				else
+					returnJson.add(new Document().append("email", tmp.get("email")).append("url", tmp.get("url")));
 			}
 			LOGGER.info("Cross searching for tags -"+searchParam+" -->"+JSON.serialize(returnJson));
 			updateCrossSearchTelemetry(emailId,"Cross-search",solutionType);
