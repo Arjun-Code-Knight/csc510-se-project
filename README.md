@@ -33,7 +33,7 @@ The server keeps track of the usage and solutions being used across by users. We
 1. [Issues Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/issues)
 2. [Milestones Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/milestones)
 3. [Contributors Page] (https://github.com/Arjun-Code-Knight/csc510-se-project/graphs/contributors)
-4. [Presentation Link](Place holder)
+4. [Presentation Link](https://github.com/Arjun-Code-Knight/csc510-se-project/blob/master/Presentation.pdf)
 5. [Project Report] (https://github.com/Arjun-Code-Knight/csc510-se-project/blob/master/Project_Report-April.pdf)
 
 #Quick Links:
